@@ -1,24 +1,180 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand: #f05a38;
+  --color-brand-soft: #fff1ec;
+  --color-ink: #17243b;
+  --color-muted: #64748b;
+  --color-canvas: #f7f8fb;
+  --color-surface: #ffffff;
+  --color-border: #e3e8ef;
+  --color-positive: #18846a;
+  --color-amber: #f7b731;
+  --color-purple: #7c63b6;
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --spacing: 4px;
+}
+
+/* Tailwind spacing utilities use a 4px base unit: mt-4 = 16px, p-6 = 24px. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --spacing: 4px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
-
-/* @theme {
-  --spacing: 1px;
-} */
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scrollbar-gutter: stable;
+}
+body {
+  overflow-x: hidden;
+}
+/* The map exploration view intentionally uses the full browser width. */
+main[class*="max-w-[1440px]"][class*="min-h-[calc(100vh-72px)]"] {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+.scrollbar-pretty {
+  scrollbar-width: thin;
+  scrollbar-color: #b8c2cf transparent;
+}
+.scrollbar-pretty::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-pretty::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-pretty::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #b8c2cf;
+  background-clip: padding-box;
+}
+.scrollbar-pretty::-webkit-scrollbar-thumb:hover {
+  background: #8795a7;
+  background-clip: padding-box;
+}
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: Arial, "Noto Sans KR", sans-serif;
+  letter-spacing: -0.02em;
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+.surface {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 18px 50px rgba(23, 36, 59, 0.06);
+}
+.soft-shadow {
+  box-shadow: 0 12px 32px rgba(23, 36, 59, 0.1);
+}
+.nav-link {
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.nav-link:hover {
+  color: var(--color-ink);
+  transform: translateY(-1px);
+}
+.lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(23, 36, 59, 0.1);
+  border-color: #cbd5df;
+}
+.button-primary {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+.button-primary:hover {
+  transform: translateY(-1px);
+  background: #dd4c2f;
+  box-shadow: 0 12px 24px rgba(240, 90, 56, 0.24);
+}
+.button-primary:active {
+  transform: translateY(0);
+}
+.map-grid {
+  background-color: #e9eef1;
+  background-image:
+    linear-gradient(30deg, #d8e1e5 12%, transparent 12.5%, transparent 87%, #d8e1e5 87.5%),
+    linear-gradient(150deg, #d8e1e5 12%, transparent 12.5%, transparent 87%, #d8e1e5 87.5%),
+    linear-gradient(30deg, #d8e1e5 12%, transparent 12.5%, transparent 87%, #d8e1e5 87.5%),
+    linear-gradient(150deg, #d8e1e5 12%, transparent 12.5%, transparent 87%, #d8e1e5 87.5%);
+  background-size: 80px 140px;
+}
+.map-road {
+  position: absolute;
+  height: 12px;
+  background: #fff;
+  border: 1px solid #d3dde0;
+  transform: rotate(-25deg);
+  border-radius: 99px;
+}
+.map-road.one {
+  width: 120%;
+  top: 38%;
+  left: -10%;
+}
+.map-road.two {
+  width: 120%;
+  top: 68%;
+  left: -10%;
+  transform: rotate(22deg);
+}
+.map-road.three {
+  width: 90%;
+  top: 14%;
+  left: 10%;
+  transform: rotate(72deg);
+}
+.nav-link {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px 18px;
+  border-radius: 12px;
+}
+.nav-link.active {
+  color: #17243b;
+  background: #f1f4f7;
+}
+.focus-ring:focus-visible {
+  outline: 3px solid #f7b731;
+  outline-offset: 3px;
+}
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 1rem; background: rgb(23 36 59 / 45%); }
+.modal-backdrop button.bg-brand {
+  flex-shrink: 0;
+  min-width: 64px;
+  white-space: nowrap;
+}
+.modal-backdrop [role="dialog"] > .scrollbar-pretty button > div > p:nth-child(3) {
+  display: none;
+}
+@media (max-width: 767px) {
+  .nav-link {
+    padding: 10px 12px;
+    font-size: 12px;
   }
 }
