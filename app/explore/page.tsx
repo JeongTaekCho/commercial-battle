@@ -1,12 +1,120 @@
 "use client";
-import Script from "next/script";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { getMiddleCategories, getSmallCategories } from "@/src/constants/industry-categories";
 import AddressSearchModal, { type AddressResult } from "@/src/shared/components/AddressSearchModal";
 import NaverMap from "@/src/shared/components/NaverMap";
+import ClusterMarkerLayer from "@/src/shared/components/naver-map/ClusterMarkerLayer";
 
 export default function ExplorePage() {
-  const [middle, setMiddle] = useState("Q"); const [small, setSmall] = useState(""); const [address, setAddress] = useState("서울 중구 명동"); const [coords, setCoords] = useState({ latitude: 37.5665, longitude: 126.978 }); const [addressOpen, setAddressOpen] = useState(false);
-  const selectAddress = (result: AddressResult) => { setAddress(result.road_address?.address_name ?? result.address_name); setCoords({ latitude: Number(result.y), longitude: Number(result.x) }); setAddressOpen(false); };
-  return <><Script src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID ?? ""}`} strategy="afterInteractive" /><main className="mx-auto grid min-h-[calc(100vh-72px)] max-w-[1440px] lg:grid-cols-[360px_1fr]"><aside className="border-r border-border bg-white p-8 lg:p-10"><p className="text-xs font-black tracking-[.18em] text-brand">DISCOVER YOUR NEXT SPOT</p><h1 className="mt-5 text-3xl font-black leading-tight">내 가게의<br />다음 자리를 찾아보세요</h1><p className="mt-5 text-sm leading-6 text-muted">상권과 업종 데이터를 바탕으로 성장 가능성이 높은 위치를 발견해 보세요.</p><section className="mt-9 rounded-card bg-ink p-6 text-white"><p className="text-xs text-white/60">선택한 상권</p><p className="mt-2 text-lg font-black">{address}</p><div className="mt-6 border-t border-white/15 pt-4 text-sm"><span className="text-white/60">조회된 상권 음식점</span><strong className="float-right text-xl">128곳</strong></div></section><div className="mt-9"><h2 className="mb-3 text-sm font-black">업종 필터</h2><label className="text-xs font-bold text-muted">중분류<select value={middle} onChange={(event) => { setMiddle(event.target.value); setSmall(""); }} className="mt-2 w-full rounded-control border border-border bg-white p-3"><option value="">전체 중분류</option>{getMiddleCategories().map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="mt-4 block text-xs font-bold text-muted">소분류<select value={small} onChange={(event) => setSmall(event.target.value)} disabled={!middle} className="mt-2 w-full rounded-control border border-border bg-white p-3 disabled:bg-canvas"><option value="">전체 소분류</option>{getSmallCategories(middle).map((item) => <option key={item.indsSclsCd} value={item.indsSclsCd}>{item.indsSclsNm}</option>)}</select></label></div></aside><section className="relative min-h-[680px] overflow-hidden bg-[#edf2f3]"><NaverMap latitude={coords.latitude} longitude={coords.longitude} /><div className="absolute left-5 right-5 top-5 z-10 flex gap-2 md:left-8 md:right-8"><button onClick={() => setAddressOpen(true)} className="flex min-w-0 flex-1 items-center rounded-control border border-border bg-white px-4 py-3 text-left text-sm font-bold shadow-sm"><span className="mr-2">⌕</span><span className="truncate">{address}</span></button><button onClick={() => setAddressOpen(true)} className="rounded-control bg-brand px-5 py-3 text-sm font-black text-white">주소 검색</button></div><div className="absolute bottom-5 left-5 right-5 z-10 rounded-card border border-white/70 bg-white/95 p-5 shadow-xl backdrop-blur md:left-8 md:right-8"><p className="text-xs font-black text-brand">현재 지도 영역</p><p className="mt-1 text-sm font-bold">{address} · 매장 128곳</p></div></section></main>{addressOpen && <AddressSearchModal onClose={() => setAddressOpen(false)} onSelect={selectAddress} />}</>;
+  const [middle, setMiddle] = useState("Q");
+  const [small, setSmall] = useState("");
+  const [address, setAddress] = useState("서울 중구 명동");
+  const [coords, setCoords] = useState({ latitude: 37.5665, longitude: 126.978 });
+  const [addressOpen, setAddressOpen] = useState(false);
+  // 실제 매장 조회 연결 전 디자인 확인용 데이터는 이 페이지에서만 관리합니다.
+  const previewMarkers = useMemo(
+    () => [
+      {
+        id: "preview",
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        smallCategoryCode: "I21201",
+      },
+    ],
+    [coords.latitude, coords.longitude],
+  );
+  const selectAddress = (result: AddressResult) => {
+    setAddress(result.road_address?.address_name ?? result.address_name);
+    setCoords({ latitude: Number(result.y), longitude: Number(result.x) });
+    setAddressOpen(false);
+  };
+  return (
+    <>
+      <main className="mx-auto grid min-h-[calc(100vh-72px)] max-w-[1440px] lg:grid-cols-[360px_1fr]">
+        <aside className="border-r border-border bg-white p-8 lg:p-10">
+          <p className="text-xs font-black tracking-[.18em] text-brand">DISCOVER YOUR NEXT SPOT</p>
+          <h1 className="mt-5 text-3xl font-black leading-tight">
+            내 가게의
+            <br />
+            다음 자리를 찾아보세요
+          </h1>
+          <p className="mt-5 text-sm leading-6 text-muted">
+            상권과 업종 데이터를 바탕으로 성장 가능성이 높은 위치를 발견해 보세요.
+          </p>
+          <section className="mt-9 rounded-card bg-ink p-6 text-white">
+            <p className="text-xs text-white/60">선택한 상권</p>
+            <p className="mt-2 text-lg font-black">{address}</p>
+            <div className="mt-6 border-t border-white/15 pt-4 text-sm">
+              <span className="text-white/60">조회된 상권 음식점</span>
+              <strong className="float-right text-xl">128곳</strong>
+            </div>
+          </section>
+          <div className="mt-9">
+            <h2 className="mb-3 text-sm font-black">업종 필터</h2>
+            <label className="text-xs font-bold text-muted">
+              중분류
+              <select
+                value={middle}
+                onChange={(event) => {
+                  setMiddle(event.target.value);
+                  setSmall("");
+                }}
+                className="mt-2 w-full rounded-control border border-border bg-white p-3"
+              >
+                <option value="">전체 중분류</option>
+                {getMiddleCategories().map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="mt-4 block text-xs font-bold text-muted">
+              소분류
+              <select
+                value={small}
+                onChange={(event) => setSmall(event.target.value)}
+                disabled={!middle}
+                className="mt-2 w-full rounded-control border border-border bg-white p-3 disabled:bg-canvas"
+              >
+                <option value="">전체 소분류</option>
+                {getSmallCategories(middle).map((item) => (
+                  <option key={item.indsSclsCd} value={item.indsSclsCd}>
+                    {item.indsSclsNm}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </aside>
+        <section className="relative min-h-[680px] overflow-hidden bg-[#edf2f3]">
+          <NaverMap latitude={coords.latitude} longitude={coords.longitude}>
+            <ClusterMarkerLayer markers={previewMarkers} />
+          </NaverMap>
+          <div className="absolute left-5 right-5 top-5 z-10 flex gap-2 md:left-8 md:right-8">
+            <button
+              onClick={() => setAddressOpen(true)}
+              className="flex min-w-0 flex-1 items-center rounded-control border border-border bg-white px-4 py-3 text-left text-sm font-bold shadow-sm"
+            >
+              <span className="mr-2">⌕</span>
+              <span className="truncate">{address}</span>
+            </button>
+            <button
+              onClick={() => setAddressOpen(true)}
+              className="rounded-control bg-brand px-5 py-3 text-sm font-black text-white"
+            >
+              주소 검색
+            </button>
+          </div>
+          <div className="absolute bottom-5 left-5 right-5 z-10 rounded-card border border-white/70 bg-white/95 p-5 shadow-xl backdrop-blur md:left-8 md:right-8">
+            <p className="text-xs font-black text-brand">현재 지도 영역</p>
+            <p className="mt-1 text-sm font-bold">{address} · 매장 128곳</p>
+          </div>
+        </section>
+      </main>
+      {addressOpen && (
+        <AddressSearchModal onClose={() => setAddressOpen(false)} onSelect={selectAddress} />
+      )}
+    </>
+  );
 }

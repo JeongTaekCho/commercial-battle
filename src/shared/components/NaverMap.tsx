@@ -1,15 +1,66 @@
 "use client";
-import { useEffect, useRef } from "react";
+
+import Script from "next/script";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { NaverMapContext } from "./naver-map/NaverMapContext";
+import type { MapInstance } from "./naver-map/types";
 
 // Naver's browser SDK does not ship TypeScript declarations in this project.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare global { interface Window { naver?: any } }
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    naver?: any;
+  }
+}
 
-export default function NaverMap({ latitude, longitude }: { latitude?: number; longitude?: number }) {
+export default function NaverMap({
+  latitude = 37.5665,
+  longitude = 126.978,
+  zoom = 15,
+  children,
+}: {
+  latitude?: number;
+  longitude?: number;
+  zoom?: number;
+  children?: ReactNode;
+}) {
   const ref = useRef<HTMLDivElement>(null);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [map, setMap] = useState<MapInstance | null>(null);
+
   useEffect(() => {
-    const render = () => { if (!ref.current || ref.current.dataset.ready || !window.naver?.maps) return; const center = new window.naver.maps.LatLng(latitude ?? 37.5665, longitude ?? 126.978); const map = new window.naver.maps.Map(ref.current, { center, zoom: 15, minZoom: 6, zoomControl: true, zoomControlOptions: { position: window.naver.maps.Position.TOP_RIGHT } }); new window.naver.maps.Marker({ position: center, map, title: "선택한 위치" }); ref.current.dataset.ready = "true"; };
-    render(); const timer = window.setInterval(render, 500); const element = ref.current; return () => { window.clearInterval(timer); if (element) { delete element.dataset.ready; element.replaceChildren(); } };
-  }, [latitude, longitude]);
-  return <div ref={ref} className="h-full min-h-[680px] w-full" aria-label="네이버 지도" />;
+    if (!sdkReady || !ref.current || !window.naver?.maps) return;
+    const maps = window.naver.maps;
+    const instance: MapInstance = new maps.Map(ref.current, {
+      center: { lat: 37.5665, lng: 126.978 },
+      zoom: 15,
+      minZoom: 6,
+      zoomControl: true,
+      zoomControlOptions: { position: maps.Position.TOP_RIGHT },
+    });
+    // SDK 인스턴스를 하위 레이어와 공유하는 외부 시스템 동기화입니다.
+    setMap(instance);
+    return () => instance.destroy();
+  }, [sdkReady]);
+
+  useEffect(() => {
+    map?.setCenter({ lat: latitude, lng: longitude });
+  }, [map, latitude, longitude]);
+
+  useEffect(() => {
+    map?.setZoom(zoom);
+  }, [map, zoom]);
+
+  return (
+    <NaverMapContext.Provider value={map}>
+      <Script
+        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_CLIENT_ID ?? ""}`}
+        strategy="afterInteractive"
+        onReady={() => setSdkReady(true)}
+      />
+      <div ref={ref} className="h-full min-h-[680px] w-full" aria-label="네이버 지도" />
+      {/* SDK가 관리하는 DOM 안에 React children을 렌더링하지 않습니다. */}
+      {children}
+    </NaverMapContext.Provider>
+  );
 }
