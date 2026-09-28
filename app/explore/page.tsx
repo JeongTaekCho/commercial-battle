@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getMiddleCategories, getSmallCategories } from "@/src/constants/industry-categories";
 import AddressSearchModal, { type AddressResult } from "@/src/shared/components/AddressSearchModal";
 import NaverMap from "@/src/shared/components/NaverMap";
@@ -11,7 +11,41 @@ export default function ExplorePage() {
   const [address, setAddress] = useState("서울 중구 명동");
   const [coords, setCoords] = useState({ latitude: 37.5665, longitude: 126.978 });
   const [addressOpen, setAddressOpen] = useState(false);
-  // 실제 매장 조회 연결 전 디자인 확인용 데이터는 이 페이지에서만 관리합니다.
+  const addressSelected = useRef(false);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    let cancelled = false;
+    const controller = new AbortController();
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords: { latitude, longitude } }) => {
+        if (cancelled || addressSelected.current) return;
+        setCoords({ latitude, longitude });
+        setAddress("현재 위치");
+
+        try {
+          const params = new URLSearchParams({
+            latitude: String(latitude),
+            longitude: String(longitude),
+          });
+          const response = await fetch(`/api/address/reverse?${params}`, {
+            signal: controller.signal,
+          });
+          if (!response.ok) return;
+          const data: { address: string | null } = await response.json();
+          if (!cancelled && !addressSelected.current && data.address) setAddress(data.address);
+        } catch {}
+      },
+      () => {},
+      { timeout: 10000, maximumAge: 60000 },
+    );
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, []);
   const previewMarkers = useMemo(
     () => [
       {
@@ -24,6 +58,7 @@ export default function ExplorePage() {
     [coords.latitude, coords.longitude],
   );
   const selectAddress = (result: AddressResult) => {
+    addressSelected.current = true;
     setAddress(result.road_address?.address_name ?? result.address_name);
     setCoords({ latitude: Number(result.y), longitude: Number(result.x) });
     setAddressOpen(false);

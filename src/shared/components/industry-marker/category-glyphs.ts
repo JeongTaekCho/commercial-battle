@@ -3,7 +3,6 @@ import type { MarkerGlyph } from "./marker-glyphs";
 
 export type SmallCategoryCode = (typeof INDUSTRY_CATEGORIES)[number]["indsSclsCd"];
 
-/** 소분류별 명시적 매핑. 상수에 업종이 추가되면 타입 검사로 누락을 확인합니다. */
 export const INDUSTRY_MARKER_GLYPHS = {
   G20201: "wheel", // 타이어 소매업
   G20202: "tool", // 자동차 부품 소매업

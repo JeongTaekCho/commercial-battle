@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NaverMapContext } from "./naver-map/NaverMapContext";
 import type { MapInstance } from "./naver-map/types";
 
-// Naver's browser SDK does not ship TypeScript declarations in this project.
 declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +39,6 @@ export default function NaverMap({
       zoomControl: true,
       zoomControlOptions: { position: maps.Position.TOP_RIGHT },
     });
-    // SDK 인스턴스를 하위 레이어와 공유하는 외부 시스템 동기화입니다.
     setMap(instance);
     return () => instance.destroy();
   }, [sdkReady]);
@@ -61,7 +59,6 @@ export default function NaverMap({
         onReady={() => setSdkReady(true)}
       />
       <div ref={ref} className={className} aria-label="네이버 지도" />
-      {/* SDK가 관리하는 DOM 안에 React children을 렌더링하지 않습니다. */}
       {children}
     </NaverMapContext.Provider>
   );

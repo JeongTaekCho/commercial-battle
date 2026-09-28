@@ -1,6 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Local API (JSON Server)
+
+```bash
+pnpm install
+pnpm dev:server
+```
+
+API 주소는 `http://localhost:4000`입니다. 프런트엔드는 별도 터미널에서 `pnpm dev`로 실행합니다.
+
+데이터는 `server/db.json`에서 관리합니다. 시작용으로 빈 `stores` 배열만 있으며, 필요한 리소스와 필드는 직접 추가하면 됩니다.
+
+- `GET /stores`: 목록 조회
+- `GET /stores/:id`: 단건 조회
+- `POST /stores`: 생성
+- `PUT /stores/:id`, `PATCH /stores/:id`: 수정
+- `DELETE /stores/:id`: 삭제
+
+API로 변경한 데이터는 `server/db.json`에 저장됩니다. 프런트엔드 API 연결은 별도로 구현하면 됩니다.
+
+[JSON Server 공식 문서](https://github.com/typicode/json-server)
+
+## Frontend
 
 First, run the development server:
 
