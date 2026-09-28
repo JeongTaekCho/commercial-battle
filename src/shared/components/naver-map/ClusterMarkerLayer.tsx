@@ -8,6 +8,7 @@ import type { MarkerInstance } from "./types";
 
 export type NaverMapMarker = {
   id: string;
+  name?: string;
   latitude: number;
   longitude: number;
   smallCategoryCode: string;
@@ -19,6 +20,7 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
   useEffect(() => {
     if (!map || !window.naver?.maps) return;
     const maps = window.naver.maps;
+    const individualZoom = Math.min(15, map.getMaxZoom());
     const items = markers
       .filter(
         (item) =>
@@ -29,18 +31,27 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
       )
       .slice()
       .sort((a, b) => a.id.localeCompare(b.id));
-    let displayed: MarkerInstance[] = [];
-    let clickListeners: unknown[] = [];
-    const clear = () => {
-      clickListeners.forEach((listener) => maps.Event.removeListener(listener));
-      displayed.forEach((marker) => marker.setMap(null));
-      displayed = [];
-      clickListeners = [];
+    const displayed = new Map<string, { marker: MarkerInstance; listeners: unknown[] }>();
+    const remove = (entry: { marker: MarkerInstance; listeners: unknown[] }) => {
+      entry.listeners.forEach((listener) => maps.Event.removeListener(listener));
+      entry.marker.setMap(null);
     };
+    const clear = () => {
+      displayed.forEach(remove);
+      displayed.clear();
+    };
+    let renderedZoom: number | undefined;
     const render = () => {
-      clear();
+      const zoom = map.getZoom();
+      // 이동만 했거나 개별 표시 구간이면 SDK가 기존 마커 위치를 갱신합니다.
+      if (
+        renderedZoom === zoom ||
+        (renderedZoom !== undefined && renderedZoom >= individualZoom && zoom >= individualZoom)
+      )
+        return;
+      renderedZoom = zoom;
       const projection = map.getProjection();
-      // 19레벨(또는 지도 최대 줌)부터 클러스터를 풀어 개별 업종을 표시합니다.
+      // 확대할수록 묶는 범위를 줄이고, 줌 15부터 개별 마커를 표시합니다.
       const groups = clusterMarkers(
         items,
         (item) =>
@@ -48,29 +59,61 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
             lat: item.latitude,
             lng: item.longitude,
           }),
-        map.getZoom() >= Math.min(19, map.getMaxZoom()) ? 0 : 80,
+        map.getZoom() >= individualZoom ? 0 : map.getZoom() >= individualZoom - 1 ? 50 : 80,
       );
+      const activeKeys = new Set<string>();
       for (const group of groups) {
+        const key = JSON.stringify(group.map((item) => item.id));
+        activeKeys.add(key);
+        if (displayed.has(key)) continue;
+        const markerListeners: unknown[] = [];
         const isCluster = group.length > 1;
         const position = {
           lat: group.reduce((sum, item) => sum + item.latitude, 0) / group.length,
           lng: group.reduce((sum, item) => sum + item.longitude, 0) / group.length,
         };
+        const baseZIndex = isCluster ? 200 : 100;
+        const icon = isCluster
+          ? createClusterMarkerIcon(group.length)
+          : createNaverIndustryMarkerIcon({
+              smallCategoryCode: group[0].smallCategoryCode,
+              name: group[0].name,
+              showLabel: true,
+            });
+        let hoverIcon: typeof icon | undefined;
         const marker: MarkerInstance = new maps.Marker({
           position,
           map,
-          title: isCluster ? `매장 ${group.length}곳 · 클릭하여 확대` : "업종 마커",
-          icon: isCluster
-            ? createClusterMarkerIcon(group.length)
-            : createNaverIndustryMarkerIcon({
-                smallCategoryCode: group[0].smallCategoryCode,
-                showLabel: true,
-              }),
-          zIndex: isCluster ? 200 : 100,
+          title: isCluster
+            ? `매장 ${group.length}곳 · 클릭하여 확대`
+            : (group[0].name ?? "업종 마커"),
+          icon,
+          zIndex: baseZIndex,
         });
-        displayed.push(marker);
+        displayed.set(key, { marker, listeners: markerListeners });
+        markerListeners.push(
+          maps.Event.addListener(marker, "mouseover", () => {
+            marker.setZIndex(1000);
+            hoverIcon ??= isCluster
+              ? {
+                  ...icon,
+                  content: `<div style="filter:brightness(1.2) drop-shadow(0 3px 5px #0005)">${icon.content}</div>`,
+                }
+              : createNaverIndustryMarkerIcon({
+                  smallCategoryCode: group[0].smallCategoryCode,
+                  name: group[0].name,
+                  showLabel: true,
+                  selected: true,
+                });
+            marker.setIcon(hoverIcon);
+          }),
+          maps.Event.addListener(marker, "mouseout", () => {
+            marker.setZIndex(baseZIndex);
+            marker.setIcon(icon);
+          }),
+        );
         if (isCluster) {
-          clickListeners.push(
+          markerListeners.push(
             maps.Event.addListener(marker, "click", () => {
               const previousZoom = map.getZoom();
               map.fitBounds(
@@ -80,15 +123,21 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
                   right: 80,
                   bottom: 80,
                   left: 80,
-                  maxZoom: Math.min(19, map.getMaxZoom()),
+                  maxZoom: individualZoom,
                 },
               );
               if (map.getZoom() <= previousZoom) {
                 map.setCenter(position);
-                map.setZoom(Math.min(previousZoom + 1, 19, map.getMaxZoom()));
+                map.setZoom(Math.min(previousZoom + 1, individualZoom));
               }
             }),
           );
+        }
+      }
+      for (const [key, entry] of displayed) {
+        if (!activeKeys.has(key)) {
+          remove(entry);
+          displayed.delete(key);
         }
       }
     };

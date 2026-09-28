@@ -48,7 +48,7 @@ import IndustryMarker from "@/src/shared/components/industry-marker/IndustryMark
 ## 밀집 지역 클러스터
 
 `NaverMap`의 children인 `ClusterMarkerLayer`에 `markers`를 전달하면 화면상 80px 반경의 마커들을 숫자로 묶습니다.
-지도 이동·확대 후 다시 계산하며, 줌 19(또는 지도 최대 줌)부터 개별 업종을 표시합니다.
+지도 이동·확대 후 다시 계산하며, 줌 15(또는 지도 최대 줌)부터 개별 업종을 표시합니다.
 클러스터 클릭 시 해당 좌표 영역으로 확대합니다. 같은 좌표의 매장은 개별 표시 시 겹칠 수 있습니다.
 레이어를 넣지 않으면 지도만 표시합니다. 레이어의 `markers`는 필수이며 빈 배열이면 마커를 표시하지 않습니다.
 
