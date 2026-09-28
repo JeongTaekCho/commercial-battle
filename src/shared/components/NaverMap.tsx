@@ -18,11 +18,13 @@ export default function NaverMap({
   longitude = 126.978,
   zoom = 15,
   children,
+  className = "h-full min-h-[680px] w-full",
 }: {
   latitude?: number;
   longitude?: number;
   zoom?: number;
   children?: ReactNode;
+  className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [sdkReady, setSdkReady] = useState(false);
@@ -58,7 +60,7 @@ export default function NaverMap({
         strategy="afterInteractive"
         onReady={() => setSdkReady(true)}
       />
-      <div ref={ref} className="h-full min-h-[680px] w-full" aria-label="네이버 지도" />
+      <div ref={ref} className={className} aria-label="네이버 지도" />
       {/* SDK가 관리하는 DOM 안에 React children을 렌더링하지 않습니다. */}
       {children}
     </NaverMapContext.Provider>
