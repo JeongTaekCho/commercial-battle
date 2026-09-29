@@ -7,14 +7,17 @@ import IndustryDistribution from "@/src/components/report/IndustryDistribution";
 import { REPORT_PREVIEWS } from "@/src/constants/store-previews";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
-import { useGetStoreListInUpjongQuery } from "@/src/shared/hooks/useGetStoreListInUpjongQuery";
+import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
 
 export default function StoreReport({ id }: { id: string }) {
   const { data: detailStore } = useGetDetailStoreQuery(id);
+  const coords =
+    detailStore?.y != null && detailStore?.x != null
+      ? { latitude: detailStore.y, longitude: detailStore.x }
+      : undefined;
+  const traffic = useStoreTrafficQueries(coords, 150);
 
-  const { data } = useGetStoreListInUpjongQuery("indsSclsCd", "G20405");
-
-  console.log(data);
+  console.log(traffic);
 
   const report = REPORT_PREVIEWS[id];
   if (!detailStore || !report)
@@ -74,7 +77,7 @@ export default function StoreReport({ id }: { id: string }) {
               <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">
                 {getStoreCategory(detailStore)}
               </span>
-              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">분석 반경 500m</span>
+              <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">분석 반경 150m</span>
             </div>
           </div>
           <div className="flex items-center gap-6 border-t border-white/15 pt-6 sm:border-t-0 sm:border-l sm:pl-9 sm:pt-0">
@@ -91,13 +94,27 @@ export default function StoreReport({ id }: { id: string }) {
           </div>
         </div>
       </section>
-      <ReportMetrics report={report} />
+      {traffic.isLoading && (
+        <p role="status" className="mt-5 text-sm text-muted">
+          주변 업종 정보를 불러오는 중입니다.
+        </p>
+      )}
+      {traffic.isError && (
+        <p role="alert" className="mt-5 text-sm text-red-600">
+          주변 업종 정보를 불러오지 못했습니다.
+        </p>
+      )}
+      <ReportMetrics
+        report={report}
+        trafficScore={traffic.trafficScore?.score}
+        totalCount={traffic.totalCount}
+      />
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <section className="min-w-0 rounded-card border border-border bg-white p-6 sm:p-7">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black">매장 주변 상권</h2>
             <span className="rounded-full bg-canvas px-3 py-1.5 text-xs font-bold text-muted">
-              500m 기준
+              150m 기준
             </span>
           </div>
           <p className="mt-2 text-xs text-muted">{detailStore.address}</p>
@@ -132,7 +149,7 @@ export default function StoreReport({ id }: { id: string }) {
           <div className="rounded-2xl bg-canvas p-5">
             <h3 className="text-sm font-bold text-positive">◎ 함께 살펴봐야 할 경쟁 환경</h3>
             <p className="mt-3 text-sm leading-7 text-muted">
-              반경 500m 안에 동일·유사 업종 경쟁업체가 {report.competitors}곳 존재합니다. 주변
+              반경 150m 안에 동일·유사 업종 경쟁업체가 {report.competitors}곳 존재합니다. 주변
               매장과의 차별화 요소를 함께 살펴보세요.
             </p>
           </div>

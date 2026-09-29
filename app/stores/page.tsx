@@ -21,7 +21,7 @@ export default function StoresPage() {
           </p>
         </div>
         <button
-          onClick={() => setEditing({ id: 0, name: "", middle: "Q", small: "", address: "" })}
+          onClick={() => setEditing({ id: "", name: "", middle: "Q", small: "", address: "" })}
           className="focus-ring button-primary rounded-control bg-brand px-6 py-3.5 text-sm font-bold text-white"
         >
           + 새 매장 등록

@@ -1,13 +1,19 @@
 import type { ReportPreview } from "@/src/constants/store-previews";
 
-export default function ReportMetrics({ report }: { report: ReportPreview }) {
+interface ReportMetricsProps {
+  report: ReportPreview;
+  trafficScore: number | undefined;
+  totalCount: number;
+}
+
+export default function ReportMetrics({ report, trafficScore, totalCount }: ReportMetricsProps) {
   return (
     <div className="mt-7 grid gap-4 sm:grid-cols-3">
       {[
         {
           label: "상권 활성도",
-          value: report.activity,
-          detail: "주변 방문형 업종 126개",
+          value: trafficScore,
+          detail: `주변 방문형 업종 ${totalCount}개`,
           color: "bg-brand",
           number: "text-brand",
           icon: "↗",
@@ -15,15 +21,15 @@ export default function ReportMetrics({ report }: { report: ReportPreview }) {
         {
           label: "경쟁 환경",
           value: report.competition,
-          detail: `500m 내 동일·유사 업종 ${report.competitors}개`,
+          detail: `150m 내 동일·유사 업종 ${report.competitors}개`,
           color: "bg-positive",
           number: "text-positive",
           icon: "◎",
         },
         {
           label: "주변 전체 상가",
-          value: 183,
-          detail: "선택 반경 500m 기준",
+          value: totalCount,
+          detail: "선택 반경 150m 기준",
           color: "bg-purple",
           number: "text-purple",
           icon: "⌂",
