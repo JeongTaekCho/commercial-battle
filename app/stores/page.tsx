@@ -1,20 +1,40 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { getMiddleCategories, getSmallCategories } from "@/src/constants/industry-categories";
-import AddressSearchModal, { type AddressResult } from "@/src/shared/components/AddressSearchModal";
-
-type Store = { id: number; name: string; middle: string; small: string; address: string; x?: number; y?: number };
-const initial: Store[] = [{ id: 1, name: "상권배틀 명동점", middle: "Q", small: "Q01", address: "서울 중구 명동길 1" }, { id: 2, name: "명동 카페 골목", middle: "S", small: "S01", address: "서울 중구 을지로 12" }];
+import StoreModal from "@/src/components/stores/StoreModal";
+import type { Store } from "@/src/types/storeType";
+import StoreList from "@/src/components/stores/StoreList";
 
 export default function StoresPage() {
-  const router = useRouter(); const [stores, setStores] = useState(initial); const [editing, setEditing] = useState<Store | null>(null); const [notice, setNotice] = useState("");
-  const save = (store: Store) => { setStores(stores.some((item) => item.id === store.id) ? stores.map((item) => item.id === store.id ? store : item) : [...stores, { ...store, id: Date.now() }]); setEditing(null); setNotice("매장 정보가 저장되었습니다. 현재는 샘플 상태입니다."); };
-  return <main className="mx-auto max-w-[1200px] px-5 py-12 lg:px-10"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-black tracking-[.18em] text-brand">MY STORES</p><h1 className="mt-4 text-4xl font-black">내 매장 관리</h1><p className="mt-3 text-muted">매장 정보를 등록하고 주변 상권과 비교해 보세요.</p></div><button onClick={() => setEditing({ id: 0, name: "", middle: "Q", small: "", address: "" })} className="button-primary rounded-control bg-brand px-5 py-3 text-sm font-black text-white">+ 매장 등록</button></div>{notice && <p className="mt-5 rounded-lg bg-positive/10 p-3 text-sm text-positive">{notice}</p>}<div className="mt-9 grid gap-4 lg:grid-cols-2">{stores.map((store) => <article key={store.id} className="lift cursor-pointer rounded-card border border-border bg-white p-5" onClick={() => router.push("/battle")} role="link" tabIndex={0} onKeyDown={(event) => event.key === "Enter" && router.push("/battle")}><p className="text-xs font-bold text-brand">{getMiddleCategories().find((item) => item.code === store.middle)?.name} · {getSmallCategories(store.middle).find((item) => item.indsSclsCd === store.small)?.indsSclsNm}</p><h2 className="mt-2 text-xl font-black">{store.name}</h2><p className="mt-2 text-sm text-muted">{store.address}</p><div className="mt-5 flex gap-2"><button onClick={(event) => { event.stopPropagation(); setEditing(store); }} className="rounded-lg bg-canvas px-3 py-2 text-xs font-bold">수정</button><button onClick={(event) => { event.stopPropagation(); setStores(stores.filter((item) => item.id !== store.id)); setNotice("매장이 삭제되었습니다."); }} className="rounded-lg bg-canvas px-3 py-2 text-xs font-bold text-red-500">삭제</button></div></article>)}</div>{editing && <StoreModal store={editing} onClose={() => setEditing(null)} onSave={save} />}</main>;
-}
+  const [editing, setEditing] = useState<Store | null>(null);
+  const [notice, setNotice] = useState("");
 
-function StoreModal({ store, onClose, onSave }: { store: Store; onClose: () => void; onSave: (store: Store) => void }) {
-  const [value, setValue] = useState(store); const [addressOpen, setAddressOpen] = useState(false); const smalls = getSmallCategories(value.middle);
-  const selectAddress = (address: AddressResult) => { setValue({ ...value, address: address.road_address?.address_name ?? address.address_name, x: Number(address.x), y: Number(address.y) }); setAddressOpen(false); };
-  return <div className="modal-backdrop" onMouseDown={onClose}><div role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()} className="w-[min(92vw,520px)] rounded-card bg-white p-6 shadow-2xl"><div className="flex justify-between"><h2 className="text-xl font-black">{store.id ? "매장 수정" : "매장 등록"}</h2><button aria-label="닫기" onClick={onClose} className="text-2xl">×</button></div><label className="mt-6 block text-sm font-bold">매장명<input required value={value.name} onChange={(event) => setValue({ ...value, name: event.target.value })} className="mt-2 w-full rounded-control border border-border p-3" placeholder="예: 상권배틀 명동점" /></label><div className="mt-4 grid grid-cols-2 gap-3"><label className="text-sm font-bold">중분류<select value={value.middle} onChange={(event) => setValue({ ...value, middle: event.target.value, small: "" })} className="mt-2 w-full rounded-control border border-border bg-white p-3">{getMiddleCategories().map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label className="text-sm font-bold">소분류<select required value={value.small} onChange={(event) => setValue({ ...value, small: event.target.value })} className="mt-2 w-full rounded-control border border-border bg-white p-3"><option value="">선택</option>{smalls.map((item) => <option key={item.indsSclsCd} value={item.indsSclsCd}>{item.indsSclsNm}</option>)}</select></label></div><label className="mt-4 block text-sm font-bold">주소<div className="mt-2 flex gap-2"><input readOnly required value={value.address} className="w-full rounded-control border border-border bg-canvas p-3" placeholder="주소 검색으로 선택해 주세요" /><button type="button" onClick={() => setAddressOpen(true)} className="whitespace-nowrap rounded-control border border-border px-4 text-sm font-bold">주소 검색</button></div></label><div className="mt-6 flex justify-end gap-2"><button onClick={onClose} className="rounded-control border border-border px-4 py-3 text-sm font-bold">취소</button><button onClick={() => value.name && value.small && value.address && onSave(value)} className="rounded-control bg-brand px-4 py-3 text-sm font-black text-white">저장</button></div></div>{addressOpen && <AddressSearchModal onClose={() => setAddressOpen(false)} onSelect={selectAddress} />}</div>;
+  return (
+    <main className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14 lg:px-10">
+      <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-[11px] font-black tracking-[.2em] text-brand">MY STORES</p>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">내 매장</h1>
+          <p className="mt-4 text-sm leading-6 text-muted">
+            내 가게의 가능성, 위치에서부터 시작하세요.
+            <br />
+            등록한 매장의 주변 상권과 경쟁 환경을 한눈에 확인할 수 있어요.
+          </p>
+        </div>
+        <button
+          onClick={() => setEditing({ id: 0, name: "", middle: "Q", small: "", address: "" })}
+          className="focus-ring button-primary rounded-control bg-brand px-6 py-3.5 text-sm font-bold text-white"
+        >
+          + 새 매장 등록
+        </button>
+      </div>
+      <StoreList setEditing={setEditing} setNotice={setNotice} />
+      {notice && (
+        <p role="status" className="mt-5 rounded-lg bg-positive/10 p-3 text-sm text-positive">
+          {notice}
+        </p>
+      )}
+
+      {editing && <StoreModal store={editing} onClose={() => setEditing(null)} onSave={() => {}} />}
+    </main>
+  );
 }

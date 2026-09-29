@@ -1,6 +1,6 @@
 import { INDUSTRY_CATEGORIES } from "../../../constants/industry-categories";
-import { INDUSTRY_MARKER_GLYPHS, type SmallCategoryCode } from "./category-glyphs";
-import { MARKER_GLYPHS } from "./marker-glyphs";
+import { INDUSTRY_MARKER_GLYPHS, type SmallCategoryCode } from "@/src/constants/industry-marker/category-glyphs";
+import { MARKER_GLYPHS } from "@/src/constants/industry-marker/marker-glyphs";
 
 const categories = new Map<string, (typeof INDUSTRY_CATEGORIES)[number]>(
   INDUSTRY_CATEGORIES.map((category) => [category.indsSclsCd, category]),
@@ -26,7 +26,7 @@ export type IndustryMarkerOptions = {
   showLabel?: boolean;
 };
 
-export function getIndustryMarkerAppearance(smallCategoryCode: string) {
+export const getIndustryMarkerAppearance = (smallCategoryCode: string) => {
   const category = categories.get(smallCategoryCode);
   const glyph = category
     ? INDUSTRY_MARKER_GLYPHS[category.indsSclsCd as SmallCategoryCode]
@@ -39,9 +39,9 @@ export function getIndustryMarkerAppearance(smallCategoryCode: string) {
     glyph,
     path: MARKER_GLYPHS[glyph],
   };
-}
+};
 
-function escapeXml(value: string) {
+const escapeXml = (value: string) => {
   return value.replace(/[&<>"']/g, (character) => {
     const entities: Record<string, string> = {
       "&": "&amp;",
@@ -52,15 +52,15 @@ function escapeXml(value: string) {
     };
     return entities[character];
   });
-}
+};
 
 /** React와 지도에서 동일한 SVG를 사용합니다. 좌표는 말풍선 아래 꼭짓점입니다. */
-export function createIndustryMarkerSvg({
+export const createIndustryMarkerSvg = ({
   smallCategoryCode,
   name,
   selected = false,
   showLabel = true,
-}: IndustryMarkerOptions) {
+}: IndustryMarkerOptions) => {
   const appearance = getIndustryMarkerAppearance(smallCategoryCode);
   const displayName = name ?? appearance.name;
   const shortName = name ?? appearance.name.replace(/ 소매업$| 서비스업$| 운영업$| 전문$/, "");
@@ -81,14 +81,14 @@ export function createIndustryMarkerSvg({
 ${showLabel ? `<text x="43" y="25.5" fill="${textColor}" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="700">${escapeXml(label)}</text>` : ""}
 </svg>`;
   return { svg, width, height, anchor };
-}
+};
 
 /** Naver MarkerOptions.icon에 그대로 전달하는 HtmlIcon (SDK 로드 전에도 호출 가능). */
-export function createNaverIndustryMarkerIcon(options: IndustryMarkerOptions) {
+export const createNaverIndustryMarkerIcon = (options: IndustryMarkerOptions) => {
   const { svg, width, height, anchor } = createIndustryMarkerSvg(options);
   return {
     content: svg,
     size: { width, height },
     anchor,
   };
-}
+};

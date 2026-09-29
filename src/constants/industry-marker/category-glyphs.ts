@@ -1,4 +1,4 @@
-import type { INDUSTRY_CATEGORIES } from "../../../constants/industry-categories";
+import type { INDUSTRY_CATEGORIES } from "@/src/constants/industry-categories";
 import type { MarkerGlyph } from "./marker-glyphs";
 
 export type SmallCategoryCode = (typeof INDUSTRY_CATEGORIES)[number]["indsSclsCd"];

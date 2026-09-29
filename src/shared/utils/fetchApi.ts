@@ -2,7 +2,7 @@ interface FetchApiOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
 
-const BASE_URL = "http://localhost:4000";
+const BASE_URL = process.env.NEXT_PUBLIC_JSON_SERVER_URL;
 const TIMEOUT_MS = 30_000;
 
 export const fetchApi = async <T = unknown>(

@@ -3,23 +3,36 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 export default function Header() {
   const path = usePathname();
+  const isExplore = path === "/explore" || path === "/";
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-white/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-5 lg:px-10">
+      <div
+        className={`mx-auto flex max-w-[1440px] items-center justify-between px-5 lg:px-10 ${isExplore ? "h-[72px]" : "min-h-[72px] flex-wrap gap-y-2 py-3 md:py-0"}`}
+      >
         <Link href="/explore" className="flex items-center gap-3 focus-ring">
           <span className="grid size-10 place-items-center rounded-xl bg-brand text-sm font-black text-white">
             SB
           </span>
           <span className="text-xl font-black tracking-tight">상권배틀</span>
         </Link>
-        <nav className="hidden items-center gap-1 md:flex" aria-label="주요 메뉴">
+        <nav
+          className={
+            isExplore
+              ? "hidden items-center gap-1 md:flex"
+              : "order-3 flex w-full items-center justify-center gap-1 md:order-none md:w-auto"
+          }
+          aria-label="주요 메뉴"
+        >
           <Link
             href="/explore"
             className={`nav-link ${path === "/explore" || path === "/" ? "active" : ""}`}
           >
             상권 탐색
           </Link>
-          <Link href="/stores" className={`nav-link ${path === "/stores" ? "active" : ""}`}>
+          <Link
+            href="/stores"
+            className={`nav-link ${path === "/stores" || path.startsWith("/stores/") || path === "/shop" ? "active" : ""}`}
+          >
             내 매장
           </Link>
           <Link href="/battle" className={`nav-link ${path === "/battle" ? "active" : ""}`}>

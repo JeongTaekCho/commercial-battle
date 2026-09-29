@@ -1,11 +1,11 @@
 export type ClusterPoint = { x: number; y: number };
 
 /** 인접 셀도 검사하므로 격자 경계에 걸친 마커도 반경 안이면 묶입니다. */
-export function clusterMarkers<T>(
+export const clusterMarkers = <T>(
   items: readonly T[],
   project: (item: T) => ClusterPoint,
   radius = 80,
-): T[][] {
+): T[][] => {
   if (!Number.isFinite(radius) || radius <= 0) return items.map((item) => [item]);
   const cells = new Map<string, { point: ClusterPoint; items: T[] }[]>();
   const groups: T[][] = [];
@@ -39,10 +39,10 @@ export function clusterMarkers<T>(
     }
   }
   return groups;
-}
+};
 
 /** 외곽 링과 실제 매장 수를 표시하는 Naver HtmlIcon. */
-export function createClusterMarkerIcon(count: number) {
+export const createClusterMarkerIcon = (count: number) => {
   const total = Number.isFinite(count) ? Math.max(1, Math.floor(count)) : 1;
   const label = total.toLocaleString("ko-KR");
   const size = Math.max(total >= 100 ? 64 : total >= 10 ? 56 : 48, label.length * 11 + 20);
@@ -52,4 +52,4 @@ export function createClusterMarkerIcon(count: number) {
     size: { width: size, height: size },
     anchor: { x: center, y: center },
   };
-}
+};

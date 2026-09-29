@@ -10,11 +10,12 @@ import { useGetCommercialDistrictsByRadiusQuery } from "@/src/shared/hooks/useGe
 import AsideInfo from "@/src/components/explore/AsideInfo";
 import AddressSelect from "@/src/components/explore/AddressSelect";
 import { useTypeFilterStore } from "@/src/store/explore/useTypeFilterStore";
+import MyMarkerLayer from "@/src/shared/components/naver-map/MyMarkerLayer";
 export default function ExplorePage() {
-  const { address, coords } = useLocationStore();
+  const { address, coords, radius } = useLocationStore();
   const { middleType, smallType } = useTypeFilterStore();
 
-  const { data: districtsByRadiusData } = useGetCommercialDistrictsByRadiusQuery();
+  const { data: districtsByRadiusData } = useGetCommercialDistrictsByRadiusQuery(radius, coords);
 
   const filterData = useMemo<NaverMapMarker[]>(
     () =>
@@ -41,6 +42,7 @@ export default function ExplorePage() {
         <section className="relative min-h-[680px] overflow-hidden bg-[#edf2f3]">
           <NaverMap latitude={coords.latitude} longitude={coords.longitude} zoom={17}>
             <ClusterMarkerLayer markers={filterData} />
+            <MyMarkerLayer />
           </NaverMap>
           <AddressSelect />
           <div className="absolute bottom-5 left-5 right-5 z-10 rounded-card border border-white/70 bg-white/95 p-5 shadow-xl backdrop-blur md:left-8 md:right-8">

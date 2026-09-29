@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { createNaverIndustryMarkerIcon } from "../industry-marker/industry-marker";
-import { clusterMarkers, createClusterMarkerIcon } from "../industry-marker/marker-clusters";
+import { createNaverIndustryMarkerIcon } from "@/src/shared/utils/industry-marker/industry-marker";
+import { clusterMarkers, createClusterMarkerIcon } from "@/src/shared/utils/industry-marker/marker-clusters";
 import { useNaverMap } from "./NaverMapContext";
 import type { MarkerInstance } from "./types";
 

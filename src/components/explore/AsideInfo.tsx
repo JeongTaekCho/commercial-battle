@@ -1,6 +1,6 @@
 "use client";
 
-import { getMiddleCategories, getSmallCategories } from "@/src/constants/industry-categories";
+import IndustryFields from "@/src/shared/components/selection/IndustryFields";
 import { useLocationStore } from "@/src/store/explore/useLocationStore";
 import { useTypeFilterStore } from "@/src/store/explore/useTypeFilterStore";
 
@@ -29,40 +29,16 @@ export default function AsideInfo() {
       </section>
       <div className="mt-9">
         <h2 className="mb-3 text-sm font-black">업종 필터</h2>
-        <label className="text-xs font-bold text-muted">
-          중분류
-          <select
-            value={middleType}
-            onChange={(event) => {
-              setMiddleType(event.target.value);
-              setSmallType("");
-            }}
-            className="mt-2 w-full rounded-control border border-border bg-white p-3"
-          >
-            <option value="">전체 중분류</option>
-            {getMiddleCategories().map((item) => (
-              <option key={item.code} value={item.code}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="mt-4 block text-xs font-bold text-muted">
-          소분류
-          <select
-            value={smallType}
-            onChange={(event) => setSmallType(event.target.value)}
-            disabled={!middleType}
-            className="mt-2 w-full rounded-control border border-border bg-white p-3 disabled:bg-canvas"
-          >
-            <option value="">전체 소분류</option>
-            {getSmallCategories(middleType).map((item) => (
-              <option key={item.indsSclsCd} value={item.indsSclsCd}>
-                {item.indsSclsNm}
-              </option>
-            ))}
-          </select>
-        </label>
+        <IndustryFields
+          middle={middleType}
+          small={smallType}
+          allowAll
+          onMiddleChange={(value) => {
+            setMiddleType(value);
+            setSmallType("");
+          }}
+          onSmallChange={setSmallType}
+        />
       </div>
     </aside>
   );

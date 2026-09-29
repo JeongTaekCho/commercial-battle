@@ -1,7 +1,23 @@
 {
   "stores": [
     {
-      "id": "1"
+      "id": "1790646988590",
+      "name": "쪼롱 엽떡123asdasd",
+      "middle": "G206",
+      "small": "G20604",
+      "address": "서울 성동구 뚝섬로3길 6",
+      "x": 127.050312196257,
+      "y": 37.5405756526752
+    },
+    {
+      "id": "wryaY0hvdyk",
+      "name": "asdasd",
+      "middle": "G204",
+      "small": "G20405",
+      "address": "서울 성동구 성수동2가",
+      "x": 127.057019282187,
+      "y": 37.5409627375214
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

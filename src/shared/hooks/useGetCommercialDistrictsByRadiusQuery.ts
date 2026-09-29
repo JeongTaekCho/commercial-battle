@@ -1,17 +1,29 @@
 import { getCommercialDistrictsByRadius } from "@/src/shared/api/getCommercialDistrictsByRadius";
-import { useLocationStore } from "@/src/store/explore/useLocationStore";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetCommercialDistrictsByRadiusQuery = () => {
-  const { coords, radius } = useLocationStore();
+interface CoordsType {
+  latitude: number;
+  longitude: number;
+}
+
+export const useGetCommercialDistrictsByRadiusQuery = (
+  radius: number | undefined,
+  coords: CoordsType | undefined,
+) => {
+  const latitude = coords?.latitude;
+  const longitude = coords?.longitude;
 
   return useQuery({
-    queryKey: ["commercialDistrictsByRadius", radius, coords.latitude, coords.longitude],
-    placeholderData: (previousData, previousQuery) =>
-      previousQuery?.queryKey[2] === coords.latitude &&
-      previousQuery?.queryKey[3] === coords.longitude
-        ? previousData
-        : undefined,
-    queryFn: () => getCommercialDistrictsByRadius(radius, coords.latitude, coords.longitude),
+    queryKey: ["commercialDistrictsByRadius", radius, latitude, longitude],
+
+    enabled: radius !== undefined && latitude !== undefined && longitude !== undefined,
+
+    queryFn: () => {
+      if (radius === undefined || latitude === undefined || longitude === undefined) {
+        throw new Error("반경과 좌표가 필요합니다.");
+      }
+
+      return getCommercialDistrictsByRadius(radius, latitude, longitude);
+    },
   });
 };
