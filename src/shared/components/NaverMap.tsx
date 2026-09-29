@@ -36,6 +36,7 @@ export default function NaverMap({
       center: { lat: 37.5665, lng: 126.978 },
       zoom: 15,
       minZoom: 6,
+      tileDuration: 150,
       zoomControl: true,
       zoomControlOptions: { position: maps.Position.TOP_RIGHT },
     });

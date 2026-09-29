@@ -43,7 +43,7 @@ export default function StoreList({ setEditing, setNotice }: StoreListProps) {
             매장 이름과 업종, 주소를 설정하면 준비가 끝나요.
           </p>
           <button
-            onClick={() => setEditing({ id: 0, name: "", middle: "Q", small: "", address: "" })}
+            onClick={() => setEditing({ id: "", name: "", middle: "Q", small: "", address: "" })}
             className="focus-ring mt-6 rounded-control bg-brand px-5 py-3 text-sm font-bold text-white"
           >
             + 매장 등록

@@ -40,7 +40,7 @@ export interface ShopType {
   signguNm: string;
 }
 
-export interface StoreListInRadiusType {
+export interface StoreListType {
   header: {
     columns: string[];
     description: string;

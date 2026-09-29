@@ -9,12 +9,16 @@ interface CoordsType {
 export const useGetCommercialDistrictsByRadiusQuery = (
   radius: number | undefined,
   coords: CoordsType | undefined,
+  indsMclsCd = "",
+  indsSclsCd = "",
 ) => {
   const latitude = coords?.latitude;
   const longitude = coords?.longitude;
 
   return useQuery({
-    queryKey: ["commercialDistrictsByRadius", radius, latitude, longitude],
+    queryKey: ["commercialDistrictsByRadius", radius, latitude, longitude, indsMclsCd, indsSclsCd],
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
 
     enabled: radius !== undefined && latitude !== undefined && longitude !== undefined,
 
@@ -23,7 +27,7 @@ export const useGetCommercialDistrictsByRadiusQuery = (
         throw new Error("반경과 좌표가 필요합니다.");
       }
 
-      return getCommercialDistrictsByRadius(radius, latitude, longitude);
+      return getCommercialDistrictsByRadius(radius, latitude, longitude, indsMclsCd, indsSclsCd);
     },
   });
 };

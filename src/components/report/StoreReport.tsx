@@ -4,14 +4,20 @@ import NaverMap from "@/src/shared/components/NaverMap";
 import ReportMetrics from "@/src/components/report/ReportMetrics";
 import IndustryDistribution from "@/src/components/report/IndustryDistribution";
 
-import { useStoresStore } from "@/src/store/stores/useStoresStore";
 import { REPORT_PREVIEWS } from "@/src/constants/store-previews";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
+import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
+import { useGetStoreListInUpjongQuery } from "@/src/shared/hooks/useGetStoreListInUpjongQuery";
 
 export default function StoreReport({ id }: { id: string }) {
-  const store = useStoresStore((state) => state.stores.find((item) => String(item.id) === id));
+  const { data: detailStore } = useGetDetailStoreQuery(id);
+
+  const { data } = useGetStoreListInUpjongQuery("indsSclsCd", "G20405");
+
+  console.log(data);
+
   const report = REPORT_PREVIEWS[id];
-  if (!store || !report)
+  if (!detailStore || !report)
     return (
       <main className="mx-auto max-w-[1200px] px-5 py-14 lg:px-10">
         <Link href="/stores" className="focus-ring text-sm font-bold text-muted">
@@ -19,14 +25,16 @@ export default function StoreReport({ id }: { id: string }) {
         </Link>
         <section className="mt-8 rounded-card border border-border bg-white p-8">
           <p className="text-xs font-bold text-brand">분석 리포트</p>
-          <h1 className="mt-3 text-2xl font-black">{store?.name ?? "매장을 찾을 수 없습니다"}</h1>
-          {store && (
+          <h1 className="mt-3 text-2xl font-black">
+            {detailStore?.name ?? "매장을 찾을 수 없습니다"}
+          </h1>
+          {detailStore && (
             <p className="mt-3 text-sm text-muted">
-              {store.address} · {getStoreCategory(store)}
+              {detailStore.address} · {getStoreCategory(detailStore)}
             </p>
           )}
           <p className="mt-6 text-sm leading-6 text-muted">
-            {store
+            {detailStore
               ? "이 매장의 분석 데이터는 아직 준비 중입니다."
               : "삭제되었거나 새로고침으로 초기화된 매장입니다. 내 매장 목록에서 다시 선택해 주세요."}
           </p>
@@ -60,11 +68,11 @@ export default function StoreReport({ id }: { id: string }) {
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
           <div>
             <p className="text-xs font-bold text-white/50">MY STORE</p>
-            <h2 className="mt-3 text-2xl font-black">{store.name}</h2>
-            <p className="mt-3 text-sm text-white/65">{store.address}</p>
+            <h2 className="mt-3 text-2xl font-black">{detailStore.name}</h2>
+            <p className="mt-3 text-sm text-white/65">{detailStore.address}</p>
             <div className="mt-5 flex gap-2">
               <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">
-                {getStoreCategory(store)}
+                {getStoreCategory(detailStore)}
               </span>
               <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">분석 반경 500m</span>
             </div>
@@ -92,11 +100,11 @@ export default function StoreReport({ id }: { id: string }) {
               500m 기준
             </span>
           </div>
-          <p className="mt-2 text-xs text-muted">{store.address}</p>
+          <p className="mt-2 text-xs text-muted">{detailStore.address}</p>
           <div className="relative isolate mt-6 h-72 overflow-hidden rounded-2xl border border-border bg-canvas">
             <NaverMap
-              latitude={store.y ?? 37.5636}
-              longitude={store.x ?? 126.985}
+              latitude={detailStore.y ?? 37.5636}
+              longitude={detailStore.x ?? 126.985}
               zoom={16}
               className="h-full w-full"
             />

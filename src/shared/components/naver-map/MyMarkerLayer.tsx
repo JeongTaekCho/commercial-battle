@@ -25,7 +25,12 @@ export default function MyMarkerLayer() {
       zIndex: 1100,
     });
 
+    const clickListener = maps.Event.addListener(marker, "click", () => {
+      map.morph({ lat: coords.latitude, lng: coords.longitude }, map.getMaxZoom() - 1);
+    });
+
     return () => {
+      maps.Event.removeListener(clickListener);
       marker.setMap(null);
     };
   }, [map, coords.latitude, coords.longitude, smallType]);

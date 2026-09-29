@@ -7,7 +7,7 @@ export const useDeleteStoreMutation = () => {
 
   return useMutation({
     mutationKey: ["deleteStore"],
-    mutationFn: (id: number) => deleteStore(id),
+    mutationFn: (id: string) => deleteStore(id),
     onSuccess: () => {
       refetch();
     },

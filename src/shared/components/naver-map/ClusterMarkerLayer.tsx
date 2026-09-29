@@ -2,7 +2,10 @@
 
 import { useEffect } from "react";
 import { createNaverIndustryMarkerIcon } from "@/src/shared/utils/industry-marker/industry-marker";
-import { clusterMarkers, createClusterMarkerIcon } from "@/src/shared/utils/industry-marker/marker-clusters";
+import {
+  clusterMarkers,
+  createClusterMarkerIcon,
+} from "@/src/shared/utils/industry-marker/marker-clusters";
 import { useNaverMap } from "./NaverMapContext";
 import type { MarkerInstance } from "./types";
 
@@ -85,7 +88,7 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
           position,
           map,
           title: isCluster
-            ? `매장 ${group.length}곳 · 클릭하여 확대`
+            ? `매장 ${group.length}곳`
             : (group[0].name ?? "업종 마커"),
           icon,
           zIndex: baseZIndex,
@@ -112,24 +115,10 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
             marker.setIcon(icon);
           }),
         );
-        if (isCluster) {
+        if (!isCluster) {
           markerListeners.push(
             maps.Event.addListener(marker, "click", () => {
-              const previousZoom = map.getZoom();
-              map.fitBounds(
-                group.map((item) => ({ lat: item.latitude, lng: item.longitude })),
-                {
-                  top: 80,
-                  right: 80,
-                  bottom: 80,
-                  left: 80,
-                  maxZoom: individualZoom,
-                },
-              );
-              if (map.getZoom() <= previousZoom) {
-                map.setCenter(position);
-                map.setZoom(Math.min(previousZoom + 1, individualZoom));
-              }
+              map.morph(position, map.getMaxZoom() - 1);
             }),
           );
         }

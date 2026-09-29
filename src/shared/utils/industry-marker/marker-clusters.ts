@@ -48,7 +48,7 @@ export const createClusterMarkerIcon = (count: number) => {
   const size = Math.max(total >= 100 ? 64 : total >= 10 ? 56 : 48, label.length * 11 + 20);
   const center = size / 2;
   return {
-    content: `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="매장 ${label}곳, 클릭하여 확대"><title>매장 ${label}곳 · 클릭하여 확대</title><circle cx="${center}" cy="${center}" r="${center}" fill="#2563eb" fill-opacity=".18"/><circle cx="${center}" cy="${center}" r="${center - 5}" fill="#1d4ed8" stroke="white" stroke-width="2"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="800">${label}</text></svg>`,
+    content: `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="매장 ${label}곳"><title>매장 ${label}곳</title><circle cx="${center}" cy="${center}" r="${center}" fill="#2563eb" fill-opacity=".18"/><circle cx="${center}" cy="${center}" r="${center - 5}" fill="#1d4ed8" stroke="white" stroke-width="2"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="16" font-weight="800">${label}</text></svg>`,
     size: { width: size, height: size },
     anchor: { x: center, y: center },
   };
