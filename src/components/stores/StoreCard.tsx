@@ -4,6 +4,7 @@ import type { Store } from "../../types/storeType";
 import ConfirmModal from "@/src/shared/components/ConfirmModal";
 import { useDeleteStoreMutation } from "@/src/hooks/stores/useDeleteStoreMutation";
 import IndustryCategoryIcon from "@/src/shared/components/IndustryCategoryIcon";
+import ActionIcon from "@/src/shared/components/ActionIcon";
 
 export default function StoreCard({
   store,
@@ -60,8 +61,11 @@ export default function StoreCard({
           <p className="mt-3 text-sm leading-6 text-muted">{store.address}</p>
           <div className="mt-7 flex items-center justify-between border-t border-border pt-5 text-sm font-bold">
             <span>상권 분석 보기</span>
-            <span aria-hidden="true" className="text-brand transition group-hover:translate-x-1">
-              ↗
+            <span
+              aria-hidden="true"
+              className="grid size-9 place-items-center rounded-full bg-brand-soft text-brand transition group-hover:bg-brand group-hover:text-white"
+            >
+              <ActionIcon />
             </span>
           </div>
         </button>

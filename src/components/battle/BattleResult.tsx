@@ -1,10 +1,12 @@
 "use client";
 
+import { BattleResultSkeleton } from "@/src/components/battle/BattleSkeleton";
 import { useCompetitionScore } from "@/src/hooks/report/useCompetitionScore";
 import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
 import { calculateReportScores } from "@/src/shared/utils/calculateTotalScore";
 import { useBattleStore } from "@/src/store/battle/useBattleStore";
 import Link from "next/link";
+import ActionIcon from "@/src/shared/components/ActionIcon";
 
 export default function BattleResult() {
   const { storeA, storeB } = useBattleStore();
@@ -35,7 +37,16 @@ export default function BattleResult() {
   const scoreA = calculateReportScores(activityScoreA, competitionScoreValueA, competitionCountA);
   const scoreB = calculateReportScores(activityScoreB, competitionScoreValueB, competitionCountB);
 
-  if (!storeA || !storeB) return null;
+  if (!storeA || !storeB) {
+    return (
+      <div className="mt-7 rounded-card border border-dashed border-brand/30 bg-brand-soft/40 p-8 text-center">
+        <h2 className="text-base font-bold">비교할 매장 두 곳을 선택해주세요</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          선택하면 항목별 점수와 상권 비교 코멘트를 확인할 수 있어요.
+        </p>
+      </div>
+    );
+  }
 
   if (
     storeATraffic.isError ||
@@ -56,11 +67,7 @@ export default function BattleResult() {
     competitionA.isLoading ||
     competitionB.isLoading
   ) {
-    return (
-      <p role="status" className="mt-7 text-sm text-muted">
-        상권 점수를 계산하고 있어요.
-      </p>
-    );
+    return <BattleResultSkeleton />;
   }
 
   const storeAResult = {
@@ -116,9 +123,11 @@ export default function BattleResult() {
               <Link
                 href={`/stores/${winner?.id}`}
                 aria-label={`${winner?.name} 승리 매장 분석 리포트 보기`}
-                className="focus-ring shrink-0 rounded-control border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/20"
+                className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-control border border-[#f7c76e]/30 bg-[#f7c76e] px-4 py-3 text-sm font-bold text-ink shadow-sm transition hover:bg-[#ffda93] hover:shadow-md"
               >
-                승리 매장 리포트 ↗
+                <ActionIcon kind="report" />
+                승리 매장 리포트
+                <ActionIcon />
               </Link>
             )}
           </div>
@@ -205,6 +214,47 @@ export default function BattleResult() {
             {storeBResult.competitionCount}
             <span className="ml-1 text-xs font-normal">개</span>
           </p>
+        </div>
+      </section>
+      <section className="mt-7 rounded-card border border-border bg-white p-6 sm:p-8">
+        <p className="text-[10px] font-black tracking-[.18em] text-brand">BATTLE INSIGHT</p>
+        <h2 className="mt-2 text-xl font-black">상권 비교 코멘트</h2>
+        <p className="mt-3 text-sm leading-7 text-muted">
+          {winner
+            ? `${winner.name}의 최종 상권 점수가 ${scoreDifference}점 더 높아요. 아래 항목별 차이도 함께 살펴보세요.`
+            : "최종 점수는 같아도 상권의 특성은 다를 수 있어요. 활성도와 경쟁 환경을 함께 살펴보세요."}
+        </p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {[
+            {
+              key: "activityScore",
+              label: "상권 활성도",
+              description: "방문형 업종의 밀집도를 기준으로 비교한 점수예요.",
+            },
+            {
+              key: "competitionScore",
+              label: "경쟁 환경",
+              description: "각 매장 업종의 기준으로 계산하며, 점수가 높을수록 경쟁 부담이 낮아요.",
+            },
+          ].map(({ key, label, description }) => {
+            const metric = key as "activityScore" | "competitionScore";
+            const difference = Math.abs(scoreA[metric] - scoreB[metric]);
+            const leadingStore = scoreA[metric] > scoreB[metric] ? storeA : storeB;
+            return (
+              <div key={key} className="rounded-2xl bg-canvas p-5">
+                <h3 className="flex items-center gap-2 text-sm font-bold text-brand">
+                  <ActionIcon kind="chart" />
+                  {label}
+                </h3>
+                <p className="mt-3 text-sm font-bold leading-7">
+                  {difference === 0
+                    ? `두 매장이 ${scoreA[metric]}점으로 같아요.`
+                    : `${leadingStore.name}이 ${difference}점 더 높아요.`}
+                </p>
+                <p className="mt-2 text-xs leading-6 text-muted">{description}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
     </>

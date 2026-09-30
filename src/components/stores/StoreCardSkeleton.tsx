@@ -11,8 +11,8 @@ export default function StoreCardSkeleton() {
         </div>
         <div className="mt-6 h-7 w-2/3 rounded bg-canvas" />
         <div className="mt-4 flex gap-2">
-          <div className="h-9 w-24 rounded-lg bg-brand-soft" />
           <div className="h-9 w-28 rounded-lg bg-canvas" />
+          <div className="h-9 w-24 rounded-lg bg-brand-soft" />
         </div>
         <div className="mt-4 h-6 w-4/5 rounded bg-canvas" />
         <div className="mt-7 border-t border-border pt-5">

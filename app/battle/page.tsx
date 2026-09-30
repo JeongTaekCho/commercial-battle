@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BattleComparison from "@/src/components/battle/BattleComparison";
+import ActionIcon from "@/src/shared/components/ActionIcon";
 
 export default function BattlePage() {
   return (
@@ -16,9 +17,9 @@ export default function BattlePage() {
         </div>
         <Link
           href="/stores"
-          className="focus-ring rounded-control border border-border bg-white px-5 py-3.5 text-center text-sm font-bold"
+          className="focus-ring inline-flex items-center justify-center gap-2 rounded-control border border-border bg-white px-5 py-3.5 text-center text-sm font-bold transition hover:border-brand/30 hover:text-brand"
         >
-          내 매장 관리 ↗
+          내 매장 관리 <ActionIcon />
         </Link>
       </div>
       <BattleComparison />

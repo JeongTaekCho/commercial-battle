@@ -2,10 +2,13 @@
 import Link from "next/link";
 import BattleForm from "@/src/components/battle/BattleForm";
 import BattleResult from "@/src/components/battle/BattleResult";
+import { BattleFormSkeleton } from "@/src/components/battle/BattleSkeleton";
 import { useGetStoreListQuery } from "@/src/shared/hooks/useGetStoreListQuery";
 
 export default function BattleComparison() {
-  const { data: storeList } = useGetStoreListQuery();
+  const { data: storeList, isLoading } = useGetStoreListQuery();
+
+  if (isLoading) return <BattleFormSkeleton />;
 
   if (!storeList || (storeList && storeList?.length < 2))
     return (

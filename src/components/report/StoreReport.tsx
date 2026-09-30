@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
+import ReportBackButton from "@/src/components/report/ReportBackButton";
 import NaverMap from "@/src/shared/components/NaverMap";
 import ReportMetrics from "@/src/components/report/ReportMetrics";
 import IndustryDistribution from "@/src/components/report/IndustryDistribution";
 import ReportMarkerLayer from "@/src/components/report/ReportMarkerLayer";
 import ReportMetricsSkeleton from "@/src/components/report/ReportMetricsSkeleton";
+import ActionIcon from "@/src/shared/components/ActionIcon";
 import ReportLoadingSkeleton from "@/src/components/report/ReportLoadingSkeleton";
 import IndustryCategoryIcon from "@/src/shared/components/IndustryCategoryIcon";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
@@ -34,25 +36,7 @@ export default function StoreReport({ id }: { id: string }) {
   if (!detailStore || !report)
     return (
       <main className="mx-auto max-w-[1200px] px-5 py-14 lg:px-10">
-        <Link href="/stores" className="focus-ring text-sm font-bold text-muted">
-          <span className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-brand hover:text-brand">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m15 18-6-6 6-6" />
-              <path d="M9 12h10" />
-            </svg>
-          </span>
-          <span className="sr-only">내 매장 목록으로 돌아가기</span>
-        </Link>
+        <ReportBackButton />
         <section className="mt-8 rounded-card border border-border bg-white p-8">
           <p className="text-xs font-bold text-brand">분석 리포트</p>
           <h1 className="mt-3 text-2xl font-black">
@@ -73,25 +57,7 @@ export default function StoreReport({ id }: { id: string }) {
     );
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14 lg:px-10">
-      <Link href="/stores" className="focus-ring text-xs font-bold text-muted hover:text-brand">
-        <span className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-brand hover:text-brand">
-          <svg
-            aria-hidden="true"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m15 18-6-6 6-6" />
-            <path d="M9 12h10" />
-          </svg>
-        </span>
-        <span className="sr-only">내 매장 목록으로 돌아가기</span>
-      </Link>
+      <ReportBackButton />
       <div className="mt-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-[11px] font-black tracking-[.2em] text-brand">MARKET ANALYSIS</p>
@@ -195,9 +161,10 @@ export default function StoreReport({ id }: { id: string }) {
             className={`rounded-2xl p-5 ${activityScore >= 60 ? "bg-brand-soft/60" : "bg-slate-100"}`}
           >
             <h3
-              className={`text-sm font-bold ${activityScore >= 60 ? "text-brand" : "text-slate-600"}`}
+              className={`flex items-center gap-2 text-sm font-bold ${activityScore >= 60 ? "text-brand" : "text-slate-600"}`}
             >
-              ↗ {activityScore >= 60 ? "방문형 업종이 모여 있는 상권" : "방문형 업종이 적은 상권"}
+              <ActionIcon kind="chart" />
+              {activityScore >= 60 ? "방문형 업종이 모여 있는 상권" : "방문형 업종이 적은 상권"}
             </h3>
             <p className="mt-3 text-sm leading-7 text-muted">
               {traffic.isLoading
