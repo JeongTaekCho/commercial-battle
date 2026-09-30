@@ -36,7 +36,7 @@ export default function Header() {
             내 매장
           </Link>
           <Link href="/battle" className={`nav-link ${path === "/battle" ? "active" : ""}`}>
-            배틀 결과
+            상권 배틀
           </Link>
         </nav>
         <div></div>

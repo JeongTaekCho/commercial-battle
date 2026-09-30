@@ -7,7 +7,7 @@ export default function BattlePage() {
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-[11px] font-black tracking-[.2em] text-brand">LOCATION VS LOCATION</p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">배틀 결과</h1>
+          <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">상권 배틀</h1>
           <p className="mt-4 text-sm leading-6 text-muted">
             두 매장의 입지, 같은 기준으로 나란히.
             <br />

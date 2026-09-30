@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { useDebouncedValue } from "@/src/shared/hooks/useDebouncedValue";
 
-type Option = { value: string; label: string };
+type Option = { value: string; label: string; disabled?: boolean };
 
 export default function SelectionField({
   label,
@@ -117,12 +117,14 @@ export default function SelectionField({
                 <button
                   type="button"
                   key={option.value}
+                  disabled={option.disabled}
                   aria-pressed={value === option.value}
                   onClick={() => {
+                    if (option.disabled) return;
                     onChange(option.value);
                     setOpen(false);
                   }}
-                  className={`focus-ring flex min-h-14 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${value === option.value ? "border-brand bg-brand-soft text-brand" : "border-border hover:border-brand hover:bg-canvas"}`}
+                  className={`focus-ring flex min-h-14 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition disabled:cursor-not-allowed disabled:border-border disabled:bg-canvas disabled:text-muted ${value === option.value ? "border-brand bg-brand-soft text-brand" : "border-border hover:border-brand hover:bg-canvas"}`}
                 >
                   {option.label}
                   <span

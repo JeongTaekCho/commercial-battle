@@ -6,6 +6,7 @@ import IndustryDistribution from "@/src/components/report/IndustryDistribution";
 import ReportMarkerLayer from "@/src/components/report/ReportMarkerLayer";
 import ReportMetricsSkeleton from "@/src/components/report/ReportMetricsSkeleton";
 import ReportLoadingSkeleton from "@/src/components/report/ReportLoadingSkeleton";
+import IndustryCategoryIcon from "@/src/shared/components/IndustryCategoryIcon";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
 import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
@@ -55,7 +56,23 @@ export default function StoreReport({ id }: { id: string }) {
     return (
       <main className="mx-auto max-w-[1200px] px-5 py-14 lg:px-10">
         <Link href="/stores" className="focus-ring text-sm font-bold text-muted">
-          ← 내 매장 목록
+          <span className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-brand hover:text-brand">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 18-6-6 6-6" />
+              <path d="M9 12h10" />
+            </svg>
+          </span>
+          <span className="sr-only">내 매장 목록으로 돌아가기</span>
         </Link>
         <section className="mt-8 rounded-card border border-border bg-white p-8">
           <p className="text-xs font-bold text-brand">분석 리포트</p>
@@ -78,7 +95,23 @@ export default function StoreReport({ id }: { id: string }) {
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14 lg:px-10">
       <Link href="/stores" className="focus-ring text-xs font-bold text-muted hover:text-brand">
-        ← 내 매장 목록
+        <span className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-white text-ink transition hover:border-brand hover:text-brand">
+          <svg
+            aria-hidden="true"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m15 18-6-6 6-6" />
+            <path d="M9 12h10" />
+          </svg>
+        </span>
+        <span className="sr-only">내 매장 목록으로 돌아가기</span>
       </Link>
       <div className="mt-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
@@ -99,7 +132,14 @@ export default function StoreReport({ id }: { id: string }) {
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
           <div>
             <p className="text-xs font-bold text-white/50">MY STORE</p>
-            <h2 className="mt-3 text-2xl font-black">{detailStore.name}</h2>
+            <div className="mt-3 flex items-center gap-3">
+              <IndustryCategoryIcon
+                smallCategoryCode={detailStore.small}
+                className="size-11 rounded-2xl"
+                backgroundColor="#ffffff"
+              />
+              <h2 className="text-2xl font-black">{detailStore.name}</h2>
+            </div>
             <p className="mt-3 text-sm text-white/65">{detailStore.address}</p>
             <div className="mt-5 flex gap-2">
               <span className="rounded-full bg-white/10 px-3 py-1.5 text-xs">
@@ -113,7 +153,7 @@ export default function StoreReport({ id }: { id: string }) {
               <p className="text-xs font-bold text-white/60">최종 상권 점수</p>
               <p className="mt-2">
                 <strong className="text-6xl font-black tracking-tight text-[#ff956f]">
-                  {report.totalScore || "-"}
+                  {report.totalScore || 0}
                 </strong>
                 <span className="ml-2 text-sm text-white/50">/ 100</span>
               </p>
@@ -172,19 +212,32 @@ export default function StoreReport({ id }: { id: string }) {
         </p>
         <h2 className="mt-2 text-xl font-black">숫자로 읽는 우리 매장 입지</h2>
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
-          <div className="rounded-2xl bg-brand-soft/60 p-5">
-            <h3 className="text-sm font-bold text-brand">↗ 방문형 업종이 모여 있는 상권</h3>
+          <div
+            className={`rounded-2xl p-5 ${activityScore >= 60 ? "bg-brand-soft/60" : "bg-slate-100"}`}
+          >
+            <h3
+              className={`text-sm font-bold ${activityScore >= 60 ? "text-brand" : "text-slate-600"}`}
+            >
+              ↗ {activityScore >= 60 ? "방문형 업종이 모여 있는 상권" : "방문형 업종이 적은 상권"}
+            </h3>
             <p className="mt-3 text-sm leading-7 text-muted">
-              주변 음식점과 카페 등 방문형 업종 126개가 밀집되어 있어 유동 활성도가 높은 상권으로
-              추정됩니다.
+              {traffic.isLoading
+                ? "방문형 업종 분포를 분석하고 있습니다."
+                : `반경 150m 안에 음식점·카페 등 방문형 업종 ${traffic.totalCount}개가 확인됩니다. ${
+                    activityScore >= 60
+                      ? "방문 수요가 비교적 활발한 상권으로 추정됩니다."
+                      : "방문형 업종 밀집도가 낮은 상권으로 추정됩니다."
+                  }`}
             </p>
           </div>
           <div className="rounded-2xl bg-canvas p-5">
             <h3 className="text-sm font-bold text-positive">◎ 함께 살펴봐야 할 경쟁 환경</h3>
             <p className="mt-3 text-sm leading-7 text-muted">
-              {report.competitionCount === undefined
-                ? "경쟁 업체 수를 확인할 수 없습니다."
-                : `반경 150m 안에 동일 소분류 경쟁업체가 ${report.competitionCount}곳으로 집계됩니다. 주변 매장과의 차별화 요소를 함께 살펴보세요.`}
+              {competitionQuery.isLoading
+                ? "동일 소분류 경쟁 환경을 분석하고 있습니다."
+                : report.competitionCount === undefined
+                  ? "경쟁 업체 수를 확인할 수 없습니다."
+                  : `반경 150m 안에 동일 소분류 경쟁업체가 ${report.competitionCount}곳으로 집계됩니다. 주변 매장과의 차별화 요소를 함께 살펴보세요.`}
             </p>
           </div>
         </div>

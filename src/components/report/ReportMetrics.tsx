@@ -15,7 +15,7 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
           detail: `주변 방문형 업종 ${totalCount}개`,
           color: "bg-brand",
           number: "text-brand",
-          icon: "↗",
+          icon: "activity",
         },
         {
           label: "경쟁 환경 (추정)",
@@ -26,7 +26,7 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
               : `150m 내 동일 소분류 ${report.competitionCount}개 · 높을수록 경쟁 적음`,
           color: "bg-positive",
           number: "text-positive",
-          icon: "◎",
+          icon: "competition",
         },
         {
           label: "주변 전체 상가",
@@ -34,7 +34,7 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
           detail: "선택 반경 150m 기준",
           color: "bg-purple",
           number: "text-purple",
-          icon: "⌂",
+          icon: "stores",
         },
       ].map((item, index) => (
         <section key={item.label} className="rounded-card border border-border bg-white p-6">
@@ -44,7 +44,55 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
               aria-hidden="true"
               className={`grid size-8 place-items-center rounded-lg bg-canvas text-lg ${item.number}`}
             >
-              {item.icon}
+              {item.icon === "activity" && (
+                <svg
+                  aria-hidden="true"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 17 9 11l4 4 8-8" />
+                  <path d="M15 7h6v6" />
+                </svg>
+              )}
+              {item.icon === "competition" && (
+                <svg
+                  aria-hidden="true"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="8" />
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 4v2M12 18v2M4 12h2M18 12h2" />
+                </svg>
+              )}
+              {item.icon === "stores" && (
+                <svg
+                  aria-hidden="true"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 10h18l-2-6H5Z" />
+                  <path d="M5 10v10h14V10M9 20v-6h6v6" />
+                </svg>
+              )}
             </span>
           </div>
           <p className="mt-5 flex items-baseline gap-2">
