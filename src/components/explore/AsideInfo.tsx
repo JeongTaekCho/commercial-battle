@@ -3,10 +3,17 @@
 import IndustryFields from "@/src/shared/components/selection/IndustryFields";
 import { useLocationStore } from "@/src/store/explore/useLocationStore";
 import { useTypeFilterStore } from "@/src/store/explore/useTypeFilterStore";
+import { useGetCommercialDistrictsByRadiusQuery } from "@/src/shared/hooks/useGetCommercialDistrictsByRadiusQuery";
 
 export default function AsideInfo() {
-  const { address } = useLocationStore();
+  const { address, coords, radius } = useLocationStore();
   const { middleType, setMiddleType, smallType, setSmallType } = useTypeFilterStore();
+  const { data, isFetching } = useGetCommercialDistrictsByRadiusQuery(
+    radius,
+    coords,
+    middleType,
+    smallType,
+  );
 
   return (
     <aside className="border-r border-border bg-white p-8 lg:p-10">
@@ -24,7 +31,9 @@ export default function AsideInfo() {
         <p className="mt-2 text-lg font-black">{address}</p>
         <div className="mt-6 border-t border-white/15 pt-4 text-sm">
           <span className="text-white/60">조회된 상권 음식점</span>
-          <strong className="float-right text-xl">128곳</strong>
+          <strong className="float-right text-xl">
+            {isFetching ? "-" : `${data?.items?.length ?? 0}곳`}
+          </strong>
         </div>
       </section>
       <div className="mt-9">

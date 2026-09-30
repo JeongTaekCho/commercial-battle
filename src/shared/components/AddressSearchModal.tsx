@@ -36,7 +36,7 @@ export default function AddressSearchModal({
           <h2 id="address-title" className="text-xl font-black">
             주소 검색
           </h2>
-          <button aria-label="닫기" onClick={onClose} className="text-2xl leading-none">
+          <button aria-label="닫기" onClick={onClose} className="leading-none !text-[24px]">
             ×
           </button>
         </div>
@@ -55,24 +55,39 @@ export default function AddressSearchModal({
             className="min-w-0 flex-1 rounded-control border border-border p-3"
             placeholder="도로명 주소 또는 건물명"
           />
-          <button
+          {/* <button
             onClick={searchNow}
             className="shrink-0 whitespace-nowrap rounded-control bg-brand px-5 text-sm font-black text-white"
           >
             {loading ? "검색 중" : "검색"}
-          </button>
+          </button> */}
         </div>
-        {message && (
+        {!loading && message && (
           <p className="mt-4 shrink-0 rounded-lg bg-canvas p-3 text-sm text-muted">{message}</p>
         )}
-        <div className="scrollbar-pretty mt-4 min-h-0 space-y-3 overflow-y-auto pr-1">
-          {results.map((item) => {
+        {loading && (
+          <div
+            role="status"
+            className="mt-4 flex shrink-0 items-center justify-center gap-2.5 py-8 text-sm text-muted"
+          >
+            <span>주소를 검색중입니다...</span>
+            <span
+              aria-hidden="true"
+              className="size-4 animate-spin rounded-full border-2 border-border border-t-brand motion-reduce:animate-none"
+            />
+          </div>
+        )}
+        <div
+          hidden={loading}
+          className="scrollbar-pretty mt-4 min-h-0 space-y-3 overflow-y-auto pr-1"
+        >
+          {results.map((item, index) => {
             const road = item.road_address;
             const legacy = item.address;
             const buildingName = road?.building_name || legacy?.building_name;
             return (
               <button
-                key={`${item.x}-${item.y}`}
+                key={`address-${item.x}-${index}`}
                 onClick={() => onSelect(item)}
                 className="relative w-full rounded-control border border-border p-4 text-left transition hover:border-brand hover:bg-brand-soft"
               >
