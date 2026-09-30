@@ -7,7 +7,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-white/90 backdrop-blur-xl">
       <div
-        className={`mx-auto flex max-w-[1440px] items-center justify-between px-5 lg:px-10 ${isExplore ? "h-[72px]" : "min-h-[72px] flex-wrap gap-y-2 py-3 md:py-0"}`}
+        className={`mx-auto flex max-w-full items-center justify-between px-5 lg:px-10 ${isExplore ? "h-[72px]" : "min-h-[72px] flex-wrap gap-y-2 py-3 md:py-0"}`}
       >
         <Link href="/explore" className="flex items-center gap-3 focus-ring">
           <span className="grid size-10 place-items-center rounded-xl bg-brand text-sm font-black text-white">

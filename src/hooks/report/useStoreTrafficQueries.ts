@@ -31,7 +31,6 @@ export function useStoreTrafficQueries(coords: CoordsType | undefined, radius = 
   if (isSuccess) {
     data = { food: 0, cafe: 0, convenience: 0, bar: 0, beauty: 0 };
     queries.forEach((query, index) => {
-      console.log(query.data);
       data![TRAFFIC_CATEGORIES[index].category] += Number(query.data!.totalCount || 0);
       totalCount += Number(query.data!.totalCount || 0);
     });

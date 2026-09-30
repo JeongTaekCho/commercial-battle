@@ -1,27 +1,29 @@
-import type { ReportPreview } from "@/src/constants/store-previews";
+import { ReportType } from "@/src/types/reportType";
 
 interface ReportMetricsProps {
-  report: ReportPreview;
-  trafficScore: number | undefined;
+  report: ReportType;
   totalCount: number;
 }
 
-export default function ReportMetrics({ report, trafficScore, totalCount }: ReportMetricsProps) {
+export default function ReportMetrics({ report, totalCount }: ReportMetricsProps) {
   return (
     <div className="mt-7 grid gap-4 sm:grid-cols-3">
       {[
         {
           label: "상권 활성도",
-          value: trafficScore,
+          value: report.activityScore || 0,
           detail: `주변 방문형 업종 ${totalCount}개`,
           color: "bg-brand",
           number: "text-brand",
           icon: "↗",
         },
         {
-          label: "경쟁 환경",
-          value: report.competition,
-          detail: `150m 내 동일·유사 업종 ${report.competitors}개`,
+          label: "경쟁 환경 (추정)",
+          value: report.competitionScore,
+          detail:
+            report.competitionCount === undefined
+              ? "경쟁 업체 정보 확인 필요"
+              : `150m 내 동일 소분류 ${report.competitionCount}개 · 높을수록 경쟁 적음`,
           color: "bg-positive",
           number: "text-positive",
           icon: "◎",
@@ -46,11 +48,11 @@ export default function ReportMetrics({ report, trafficScore, totalCount }: Repo
             </span>
           </div>
           <p className="mt-5 flex items-baseline gap-2">
-            <strong className="text-3xl font-black">{item.value}</strong>
+            <strong className="text-3xl font-black">{item.value ?? "—"}</strong>
             <span className="text-sm text-muted">{index === 2 ? "개" : "/ 100"}</span>
           </p>
           <p className="mt-3 text-xs text-muted">{item.detail}</p>
-          {index !== 2 && (
+          {index !== 2 && item.value !== undefined && (
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-canvas">
               <div
                 className={`h-full rounded-full ${item.color}`}

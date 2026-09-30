@@ -1,4 +1,10 @@
-export default function IndustryDistribution() {
+import { TrafficData } from "@/src/shared/utils/calculateTrafficScore";
+
+interface IndustryDistributionProps {
+  trafficData: TrafficData | undefined;
+}
+
+export default function IndustryDistribution({ trafficData }: IndustryDistributionProps) {
   return (
     <section className="rounded-card border border-border bg-white p-6 sm:p-7">
       <div className="flex items-center justify-between">

@@ -3,11 +3,14 @@ import Link from "next/link";
 import NaverMap from "@/src/shared/components/NaverMap";
 import ReportMetrics from "@/src/components/report/ReportMetrics";
 import IndustryDistribution from "@/src/components/report/IndustryDistribution";
-
-import { REPORT_PREVIEWS } from "@/src/constants/store-previews";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
 import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
+import { useGetCommercialDistrictsByRadiusQuery } from "@/src/shared/hooks/useGetCommercialDistrictsByRadiusQuery";
+import {
+  calculateCompetitionScore,
+  countCompetitors,
+} from "@/src/shared/utils/calculateCompetitionScore";
 
 export default function StoreReport({ id }: { id: string }) {
   const { data: detailStore } = useGetDetailStoreQuery(id);
@@ -17,9 +20,34 @@ export default function StoreReport({ id }: { id: string }) {
       : undefined;
   const traffic = useStoreTrafficQueries(coords, 150);
 
-  console.log(traffic);
+  const competitionQuery = useGetCommercialDistrictsByRadiusQuery(
+    150,
+    detailStore?.small ? coords : undefined,
+    "",
+    detailStore?.small,
+  );
 
-  const report = REPORT_PREVIEWS[id];
+  const currentUpjongList = competitionQuery.data;
+  const competitionCount = countCompetitors(currentUpjongList, detailStore) || 0;
+
+  const competitionScoreValue =
+    detailStore && competitionCount !== undefined
+      ? calculateCompetitionScore(detailStore.small, competitionCount)
+      : undefined;
+
+  const activityScore = traffic.trafficScore?.score ?? 0;
+  // 경쟁 점수는 활성도의 2배까지만 반영: 활성도 0이면 0점, 최대 가점은 활성도의 30%.
+  const adjustedCompetitionScore = Math.min(competitionScoreValue ?? 0, activityScore * 2);
+
+  const report = {
+    activityScore,
+    competitionScore: competitionScoreValue || 0,
+    competitionCount,
+    totalScore: Math.round(activityScore * 0.7 + adjustedCompetitionScore * 0.3),
+  };
+
+  console.log(report.totalScore);
+
   if (!detailStore || !report)
     return (
       <main className="mx-auto max-w-[1200px] px-5 py-14 lg:px-10">
@@ -65,7 +93,9 @@ export default function StoreReport({ id }: { id: string }) {
         </Link>
       </div>
       <div className="mt-7 rounded-xl border border-brand/15 bg-brand-soft px-5 py-3 text-xs leading-5 text-brand">
-        예시 리포트 · 아래 수치와 점수는 화면 구성을 위한 샘플입니다.
+        경쟁 환경은 소분류별 자체 기준으로 계산한 추정 점수입니다. 최종 점수는 상권 활성도를
+        중심으로 경쟁 환경을 반영하며, 활성도가 낮으면 경쟁 환경의 가점을 제한합니다. 일부 설명은
+        샘플입니다.
       </div>
       <section className="relative mt-6 overflow-hidden rounded-3xl bg-ink p-7 text-white sm:p-9">
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
@@ -85,7 +115,7 @@ export default function StoreReport({ id }: { id: string }) {
               <p className="text-xs font-bold text-white/60">최종 상권 점수</p>
               <p className="mt-2">
                 <strong className="text-6xl font-black tracking-tight text-[#ff956f]">
-                  {report.score}
+                  {report.totalScore}
                 </strong>
                 <span className="ml-2 text-sm text-white/50">/ 100</span>
               </p>
@@ -104,11 +134,17 @@ export default function StoreReport({ id }: { id: string }) {
           주변 업종 정보를 불러오지 못했습니다.
         </p>
       )}
-      <ReportMetrics
-        report={report}
-        trafficScore={traffic.trafficScore?.score}
-        totalCount={traffic.totalCount}
-      />
+      {competitionQuery.isLoading && (
+        <p role="status" className="mt-5 text-sm text-muted">
+          동일 업종 경쟁 업체를 불러오는 중입니다.
+        </p>
+      )}
+      {competitionQuery.isError && (
+        <p role="alert" className="mt-5 text-sm text-red-600">
+          경쟁 업체 정보를 불러오지 못했습니다.
+        </p>
+      )}
+      <ReportMetrics report={report} totalCount={traffic.totalCount} />
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <section className="min-w-0 rounded-card border border-border bg-white p-6 sm:p-7">
           <div className="flex items-center justify-between">
@@ -131,7 +167,7 @@ export default function StoreReport({ id }: { id: string }) {
             <span className="text-muted">지도 표시 연동 준비 중</span>
           </div>
         </section>
-        <IndustryDistribution />
+        <IndustryDistribution trafficData={traffic.data} />
       </div>
       <section className="mt-7 rounded-card border border-border bg-white p-6 sm:p-8">
         <p className="text-[10px] font-black tracking-[.18em] text-brand">
@@ -149,15 +185,19 @@ export default function StoreReport({ id }: { id: string }) {
           <div className="rounded-2xl bg-canvas p-5">
             <h3 className="text-sm font-bold text-positive">◎ 함께 살펴봐야 할 경쟁 환경</h3>
             <p className="mt-3 text-sm leading-7 text-muted">
-              반경 150m 안에 동일·유사 업종 경쟁업체가 {report.competitors}곳 존재합니다. 주변
-              매장과의 차별화 요소를 함께 살펴보세요.
+              {report.competitionCount === undefined
+                ? "경쟁 업체 수를 확인할 수 없습니다."
+                : `반경 150m 안에 동일 소분류 경쟁업체가 ${report.competitionCount}곳으로 집계됩니다. 주변 매장과의 차별화 요소를 함께 살펴보세요.`}
             </p>
           </div>
         </div>
       </section>
       <p className="mt-6 text-xs leading-6 text-muted">
-        상권 활성도는 실제 유동인구가 아닌 방문형 업종 밀집도를 활용한 추정치입니다. 최종 점수는
-        서비스 자체 분석 기준이며, 실제 매출이나 사업 성공 확률을 의미하지 않습니다.
+        경쟁 환경은 점수가 높을수록 주변 동일 소분류 업체가 적다는 뜻입니다. 업종별 기준은 통계로
+        검증되지 않은 초기 추정값이며, 배달·온라인·기업 대상 업종은 150m 밖의 경쟁을 반영하지
+        못합니다. 본인 매장은 상호와 주소가 일치하는 경우에만 제외합니다. 상권 활성도는 실제
+        유동인구가 아닌 방문형 업종 밀집도를 활용한 추정치입니다. 최종 점수는 서비스 자체 분석
+        기준이며, 실제 매출이나 사업 성공 확률을 의미하지 않습니다.
       </p>
     </main>
   );
