@@ -23,8 +23,6 @@ export default function BattleForm() {
     setStoreB(result);
   };
 
-  console.log(storeList);
-
   return (
     <section
       aria-label="비교할 매장 선택"

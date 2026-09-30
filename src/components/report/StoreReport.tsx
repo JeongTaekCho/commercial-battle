@@ -10,11 +10,8 @@ import IndustryCategoryIcon from "@/src/shared/components/IndustryCategoryIcon";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
 import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
-import { useGetCommercialDistrictsByRadiusQuery } from "@/src/shared/hooks/useGetCommercialDistrictsByRadiusQuery";
-import {
-  calculateCompetitionScore,
-  countCompetitors,
-} from "@/src/shared/utils/calculateCompetitionScore";
+import { useCompetitionScore } from "@/src/hooks/report/useCompetitionScore";
+import { calculateReportScores } from "@/src/shared/utils/calculateTotalScore";
 
 export default function StoreReport({ id }: { id: string }) {
   const { data: detailStore, isLoading: isDetailLoading } = useGetDetailStoreQuery(id);
@@ -24,31 +21,13 @@ export default function StoreReport({ id }: { id: string }) {
       : undefined;
   const traffic = useStoreTrafficQueries(coords, 150);
 
-  const competitionQuery = useGetCommercialDistrictsByRadiusQuery(
-    150,
-    detailStore?.small ? coords : undefined,
-    "",
-    detailStore?.small,
-  );
-
-  const currentUpjongList = competitionQuery.data;
-  const competitionCount = countCompetitors(currentUpjongList, detailStore) || 0;
-
-  const competitionScoreValue =
-    detailStore && competitionCount !== undefined
-      ? calculateCompetitionScore(detailStore.small, competitionCount)
-      : undefined;
-
+  const competition = useCompetitionScore({ store: detailStore, radius: 150 });
+  const currentUpjongList = competition.data;
+  const competitionCount = competition.competitionCount;
+  const competitionScoreValue = competition.score;
   const activityScore = traffic.trafficScore?.score ?? 0;
   // 경쟁 점수는 활성도의 2배까지만 반영: 활성도 0이면 0점, 최대 가점은 활성도의 30%.
-  const adjustedCompetitionScore = Math.min(competitionScoreValue ?? 0, activityScore * 2);
-
-  const report = {
-    activityScore,
-    competitionScore: competitionScoreValue || 0,
-    competitionCount,
-    totalScore: Math.round(activityScore * 0.7 + adjustedCompetitionScore * 0.3),
-  };
+  const report = calculateReportScores(activityScore, competitionScoreValue, competitionCount);
 
   if (isDetailLoading) return <ReportLoadingSkeleton />;
 
@@ -162,7 +141,7 @@ export default function StoreReport({ id }: { id: string }) {
           </div>
         </div>
       </section>
-      {traffic.isLoading || competitionQuery.isLoading ? (
+      {traffic.isLoading || competition.isLoading ? (
         <ReportMetricsSkeleton />
       ) : (
         <ReportMetrics report={report} totalCount={traffic.totalCount} />
@@ -190,17 +169,17 @@ export default function StoreReport({ id }: { id: string }) {
             <span className="font-bold">주변 경쟁 매장</span>
             <span className="text-muted">MY: 내 매장 · 상호명: 동일 업종</span>
           </div>
-          {competitionQuery.isLoading && (
+          {competition.isLoading && (
             <p role="status" className="mt-2 text-xs text-muted">
               경쟁업체 위치를 불러오는 중입니다.
             </p>
           )}
-          {competitionQuery.isError && (
+          {competition.isError && (
             <p role="alert" className="mt-2 text-xs text-red-600">
               경쟁업체 위치를 불러오지 못했습니다.
             </p>
           )}
-          {competitionQuery.isSuccess && report.competitionCount === 0 && (
+          {competition.data && report.competitionCount === 0 && (
             <p className="mt-2 text-xs text-muted">반경 150m 내 동일 소분류 경쟁업체가 없습니다.</p>
           )}
         </section>
@@ -233,7 +212,7 @@ export default function StoreReport({ id }: { id: string }) {
           <div className="rounded-2xl bg-canvas p-5">
             <h3 className="text-sm font-bold text-positive">◎ 함께 살펴봐야 할 경쟁 환경</h3>
             <p className="mt-3 text-sm leading-7 text-muted">
-              {competitionQuery.isLoading
+              {competition.isLoading
                 ? "동일 소분류 경쟁 환경을 분석하고 있습니다."
                 : report.competitionCount === undefined
                   ? "경쟁 업체 수를 확인할 수 없습니다."
