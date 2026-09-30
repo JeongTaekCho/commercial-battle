@@ -22,7 +22,7 @@ export default function MyMarkerLayer() {
       },
       map,
       icon: createNaverMyMarkerIcon(smallType),
-      zIndex: 1100,
+      zIndex: 1250,
     });
 
     const clickListener = maps.Event.addListener(marker, "click", () => {

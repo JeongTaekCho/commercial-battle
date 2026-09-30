@@ -1,21 +1,50 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useStoresStore } from "@/src/store/stores/useStoresStore";
-import { REPORT_PREVIEWS } from "@/src/constants/store-previews";
-import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import SelectionField from "@/src/shared/components/selection/SelectionField";
 
+type BattleReport = {
+  id: string;
+  name: string;
+  category: string;
+  address: string;
+  activity: number;
+  competition: number;
+  competitors: number;
+  score: number;
+};
+
+/**
+ * 배틀 결과에 표시할 데이터.
+ * 실제 분석 API가 연결되면 이 배열만 교체하면 됩니다.
+ */
+const BATTLE_REPORTS: readonly BattleReport[] = [
+  {
+    id: "store-a",
+    name: "매장 A",
+    category: "업종을 입력해 주세요",
+    address: "주소를 입력해 주세요",
+    activity: 0,
+    competition: 0,
+    competitors: 0,
+    score: 0,
+  },
+  {
+    id: "store-b",
+    name: "매장 B",
+    category: "업종을 입력해 주세요",
+    address: "주소를 입력해 주세요",
+    activity: 0,
+    competition: 0,
+    competitors: 0,
+    score: 0,
+  },
+];
+
 export default function BattleComparison() {
-  const stores = useStoresStore((state) => state.stores);
-  const previews = stores.flatMap((store) => {
-    const report = REPORT_PREVIEWS[String(store.id)];
-    return report
-      ? [{ ...store, ...report, id: String(store.id), category: getStoreCategory(store) }]
-      : [];
-  });
-  const [leftId, setLeftId] = useState("1");
-  const [rightId, setRightId] = useState("2");
+  const previews = BATTLE_REPORTS;
+  const [leftId, setLeftId] = useState(BATTLE_REPORTS[0]?.id ?? "");
+  const [rightId, setRightId] = useState(BATTLE_REPORTS[1]?.id ?? "");
   const left = previews.find((store) => store.id === leftId) ?? previews[0];
   const right =
     previews.find((store) => store.id === rightId && store.id !== left?.id) ??

@@ -55,7 +55,7 @@ export default function AddressSelect() {
   return (
     <>
       <div className="absolute left-5 right-5 top-5 z-10 space-y-3 md:left-8 md:right-8">
-        <div className="flex gap-2">
+        <div className="flex min-w-0 gap-2">
           <button
             onClick={() => setAddressOpen(true)}
             className="flex min-w-0 flex-1 items-center rounded-control border border-border bg-white px-4 py-3 text-left text-sm font-bold shadow-sm"
@@ -65,7 +65,7 @@ export default function AddressSelect() {
           </button>
           <button
             onClick={() => setAddressOpen(true)}
-            className="rounded-control bg-brand px-5 py-3 text-sm font-black text-white"
+            className="shrink-0 rounded-control bg-brand px-3 py-3 text-sm font-black text-white sm:px-5"
           >
             주소 검색
           </button>
@@ -73,7 +73,7 @@ export default function AddressSelect() {
         <div
           role="group"
           aria-label="상권 탐색 반경"
-          className="flex w-fit max-w-full items-center gap-1 rounded-control border border-border bg-white p-1 shadow-sm"
+          className="flex max-w-full flex-wrap items-center gap-1 rounded-control border border-border bg-white p-1 shadow-sm"
         >
           <span className="px-2 text-xs font-bold text-muted">반경</span>
           {[150, 300, 500, 1000].map((value) => (

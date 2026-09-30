@@ -1,4 +1,4 @@
-"use client"; // 클라이언트 컴포넌트 선언 필수
+"use client";
 
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,7 +20,7 @@ export default function RootLayoutProvider({ children }: { children: React.React
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

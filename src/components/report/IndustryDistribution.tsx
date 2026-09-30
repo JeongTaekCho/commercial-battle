@@ -2,9 +2,25 @@ import { TrafficData } from "@/src/shared/utils/calculateTrafficScore";
 
 interface IndustryDistributionProps {
   trafficData: TrafficData | undefined;
+  trafficTotalCount: number;
 }
 
-export default function IndustryDistribution({ trafficData }: IndustryDistributionProps) {
+export default function IndustryDistribution({
+  trafficData,
+  trafficTotalCount,
+}: IndustryDistributionProps) {
+  console.log(trafficData);
+
+  const categoryInfoArray = [
+    { label: "음식점", count: trafficData?.food || 0, color: "bg-brand" },
+    { label: "카페", count: trafficData?.cafe || 0, color: "bg-purple" },
+    { label: "편의점", count: trafficData?.convenience || 0, color: "bg-amber" },
+    { label: "주점", count: trafficData?.bar || 0, color: "bg-positive" },
+    { label: "소매·생활서비스", count: trafficData?.beauty || 0, color: "bg-slate-400" },
+  ];
+
+  console.log();
+
   return (
     <section className="rounded-card border border-border bg-white p-6 sm:p-7">
       <div className="flex items-center justify-between">
@@ -15,13 +31,7 @@ export default function IndustryDistribution({ trafficData }: IndustryDistributi
         상권 활성도를 추정하는 주변 업종 구성이에요.
       </p>
       <div className="mt-7 space-y-5">
-        {[
-          { label: "음식점", count: 52, color: "bg-brand" },
-          { label: "카페", count: 21, color: "bg-purple" },
-          { label: "편의점", count: 8, color: "bg-amber" },
-          { label: "주점", count: 16, color: "bg-positive" },
-          { label: "소매·생활서비스", count: 29, color: "bg-slate-400" },
-        ].map((item) => (
+        {categoryInfoArray.map((item) => (
           <div key={item.label}>
             <div className="mb-2 flex justify-between text-xs">
               <span className="font-bold">{item.label}</span>
@@ -30,7 +40,9 @@ export default function IndustryDistribution({ trafficData }: IndustryDistributi
             <div className="h-2 rounded-full bg-canvas">
               <div
                 className={`h-full rounded-full ${item.color}`}
-                style={{ width: `${(item.count / 52) * 100}%` }}
+                style={{
+                  width: `${(item.count / Math.max(...(Object.values(trafficData || []) || 0))) * 100}%`,
+                }}
               />
             </div>
           </div>
@@ -38,7 +50,7 @@ export default function IndustryDistribution({ trafficData }: IndustryDistributi
       </div>
       <div className="mt-6 flex justify-between border-t border-border pt-4 text-sm font-bold">
         <span>방문형 업종 합계</span>
-        <span className="text-brand">126개</span>
+        <span className="text-brand">{trafficTotalCount}개</span>
       </div>
     </section>
   );

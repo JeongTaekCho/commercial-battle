@@ -14,11 +14,24 @@ export const commercialDistrictsByRadiusOptions = (
 ) => {
   const latitude = coords?.latitude;
   const longitude = coords?.longitude;
+  // GPS 좌표의 미세한 소수점 변화로 같은 지역을 새 쿼리로 만들지 않습니다.
+  const cacheLatitude = latitude === undefined ? undefined : Number(latitude.toFixed(4));
+  const cacheLongitude = longitude === undefined ? undefined : Number(longitude.toFixed(4));
 
   return queryOptions({
-    queryKey: ["commercialDistrictsByRadius", radius, latitude, longitude, indsMclsCd, indsSclsCd],
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
+    queryKey: [
+      "commercialDistrictsByRadius",
+      radius,
+      cacheLatitude,
+      cacheLongitude,
+      indsMclsCd,
+      indsSclsCd,
+    ],
+    staleTime: 15 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
 
     enabled: radius !== undefined && latitude !== undefined && longitude !== undefined,
 
@@ -27,7 +40,13 @@ export const commercialDistrictsByRadiusOptions = (
         throw new Error("반경과 좌표가 필요합니다.");
       }
 
-      return getCommercialDistrictsByRadius(radius, latitude, longitude, indsMclsCd, indsSclsCd);
+      return getCommercialDistrictsByRadius(
+        radius,
+        cacheLatitude ?? latitude,
+        cacheLongitude ?? longitude,
+        indsMclsCd,
+        indsSclsCd,
+      );
     },
   });
 };

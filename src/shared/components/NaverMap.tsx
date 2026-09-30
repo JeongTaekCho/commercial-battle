@@ -35,10 +35,8 @@ export default function NaverMap({
     const instance: MapInstance = new maps.Map(ref.current, {
       center: { lat: 37.5665, lng: 126.978 },
       zoom: 15,
-      minZoom: 6,
+      minZoom: 10,
       tileDuration: 150,
-      zoomControl: true,
-      zoomControlOptions: { position: maps.Position.TOP_RIGHT },
     });
     setMap(instance);
     return () => instance.destroy();
@@ -59,7 +57,36 @@ export default function NaverMap({
         strategy="afterInteractive"
         onReady={() => setSdkReady(true)}
       />
-      <div ref={ref} className={className} aria-label="네이버 지도" />
+      <div className="relative h-full w-full">
+        <div ref={ref} className={className} aria-label="네이버 지도" />
+        <button
+          type="button"
+          aria-label="현재 위치로 이동"
+          title="현재 위치로 이동"
+          disabled={!map}
+          onClick={() => {
+            if (!map) return;
+            map.morph({ lat: latitude, lng: longitude }, map.getZoom());
+          }}
+          className="focus-ring absolute bottom-24 right-4 z-[9999] grid size-11 place-items-center rounded-full border border-black/10 bg-white/95 text-ink shadow-lg transition hover:bg-white hover:text-brand disabled:cursor-wait disabled:opacity-60 sm:bottom-5"
+        >
+          <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+            <circle cx="12" cy="12" r="8" strokeOpacity=".35" />
+          </svg>
+        </button>
+      </div>
       {children}
     </NaverMapContext.Provider>
   );

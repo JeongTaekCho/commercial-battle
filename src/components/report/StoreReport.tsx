@@ -3,6 +3,9 @@ import Link from "next/link";
 import NaverMap from "@/src/shared/components/NaverMap";
 import ReportMetrics from "@/src/components/report/ReportMetrics";
 import IndustryDistribution from "@/src/components/report/IndustryDistribution";
+import ReportMarkerLayer from "@/src/components/report/ReportMarkerLayer";
+import ReportMetricsSkeleton from "@/src/components/report/ReportMetricsSkeleton";
+import ReportLoadingSkeleton from "@/src/components/report/ReportLoadingSkeleton";
 import { getStoreCategory } from "@/src/shared/utils/getStoreCategory";
 import { useGetDetailStoreQuery } from "@/src/shared/hooks/useGetDetailStoreQuery";
 import { useStoreTrafficQueries } from "@/src/hooks/report/useStoreTrafficQueries";
@@ -13,7 +16,7 @@ import {
 } from "@/src/shared/utils/calculateCompetitionScore";
 
 export default function StoreReport({ id }: { id: string }) {
-  const { data: detailStore } = useGetDetailStoreQuery(id);
+  const { data: detailStore, isLoading: isDetailLoading } = useGetDetailStoreQuery(id);
   const coords =
     detailStore?.y != null && detailStore?.x != null
       ? { latitude: detailStore.y, longitude: detailStore.x }
@@ -46,7 +49,7 @@ export default function StoreReport({ id }: { id: string }) {
     totalScore: Math.round(activityScore * 0.7 + adjustedCompetitionScore * 0.3),
   };
 
-  console.log(report.totalScore);
+  if (isDetailLoading) return <ReportLoadingSkeleton />;
 
   if (!detailStore || !report)
     return (
@@ -89,13 +92,8 @@ export default function StoreReport({ id }: { id: string }) {
           href="/battle"
           className="focus-ring rounded-control bg-brand px-5 py-3.5 text-center text-sm font-bold text-white"
         >
-          두 매장 비교하기 ↗
+          두 매장 비교하기
         </Link>
-      </div>
-      <div className="mt-7 rounded-xl border border-brand/15 bg-brand-soft px-5 py-3 text-xs leading-5 text-brand">
-        경쟁 환경은 소분류별 자체 기준으로 계산한 추정 점수입니다. 최종 점수는 상권 활성도를
-        중심으로 경쟁 환경을 반영하며, 활성도가 낮으면 경쟁 환경의 가점을 제한합니다. 일부 설명은
-        샘플입니다.
       </div>
       <section className="relative mt-6 overflow-hidden rounded-3xl bg-ink p-7 text-white sm:p-9">
         <div className="relative flex flex-col justify-between gap-8 sm:flex-row sm:items-center">
@@ -115,7 +113,7 @@ export default function StoreReport({ id }: { id: string }) {
               <p className="text-xs font-bold text-white/60">최종 상권 점수</p>
               <p className="mt-2">
                 <strong className="text-6xl font-black tracking-tight text-[#ff956f]">
-                  {report.totalScore}
+                  {report.totalScore || "-"}
                 </strong>
                 <span className="ml-2 text-sm text-white/50">/ 100</span>
               </p>
@@ -124,31 +122,15 @@ export default function StoreReport({ id }: { id: string }) {
           </div>
         </div>
       </section>
-      {traffic.isLoading && (
-        <p role="status" className="mt-5 text-sm text-muted">
-          주변 업종 정보를 불러오는 중입니다.
-        </p>
+      {traffic.isLoading || competitionQuery.isLoading ? (
+        <ReportMetricsSkeleton />
+      ) : (
+        <ReportMetrics report={report} totalCount={traffic.totalCount} />
       )}
-      {traffic.isError && (
-        <p role="alert" className="mt-5 text-sm text-red-600">
-          주변 업종 정보를 불러오지 못했습니다.
-        </p>
-      )}
-      {competitionQuery.isLoading && (
-        <p role="status" className="mt-5 text-sm text-muted">
-          동일 업종 경쟁 업체를 불러오는 중입니다.
-        </p>
-      )}
-      {competitionQuery.isError && (
-        <p role="alert" className="mt-5 text-sm text-red-600">
-          경쟁 업체 정보를 불러오지 못했습니다.
-        </p>
-      )}
-      <ReportMetrics report={report} totalCount={traffic.totalCount} />
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <section className="min-w-0 rounded-card border border-border bg-white p-6 sm:p-7">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black">매장 주변 상권</h2>
+            <h2 className="text-lg font-black">주변 경쟁 매장</h2>
             <span className="rounded-full bg-canvas px-3 py-1.5 text-xs font-bold text-muted">
               150m 기준
             </span>
@@ -158,16 +140,31 @@ export default function StoreReport({ id }: { id: string }) {
             <NaverMap
               latitude={detailStore.y ?? 37.5636}
               longitude={detailStore.x ?? 126.985}
-              zoom={16}
+              zoom={17}
               className="h-full w-full"
-            />
+            >
+              <ReportMarkerLayer store={detailStore} competitors={currentUpjongList?.items} />
+            </NaverMap>
           </div>
           <div className="mt-4 flex items-center justify-between text-xs">
             <span className="font-bold">주변 경쟁 매장</span>
-            <span className="text-muted">지도 표시 연동 준비 중</span>
+            <span className="text-muted">MY: 내 매장 · 상호명: 동일 업종</span>
           </div>
+          {competitionQuery.isLoading && (
+            <p role="status" className="mt-2 text-xs text-muted">
+              경쟁업체 위치를 불러오는 중입니다.
+            </p>
+          )}
+          {competitionQuery.isError && (
+            <p role="alert" className="mt-2 text-xs text-red-600">
+              경쟁업체 위치를 불러오지 못했습니다.
+            </p>
+          )}
+          {competitionQuery.isSuccess && report.competitionCount === 0 && (
+            <p className="mt-2 text-xs text-muted">반경 150m 내 동일 소분류 경쟁업체가 없습니다.</p>
+          )}
         </section>
-        <IndustryDistribution trafficData={traffic.data} />
+        <IndustryDistribution trafficData={traffic.data} trafficTotalCount={traffic.totalCount} />
       </div>
       <section className="mt-7 rounded-card border border-border bg-white p-6 sm:p-8">
         <p className="text-[10px] font-black tracking-[.18em] text-brand">

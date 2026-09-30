@@ -75,7 +75,8 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
           lat: group.reduce((sum, item) => sum + item.latitude, 0) / group.length,
           lng: group.reduce((sum, item) => sum + item.longitude, 0) / group.length,
         };
-        const baseZIndex = isCluster ? 200 : 100;
+        // 경쟁업체/클러스터가 내 매장(MY, 1100)보다 위에 표시되도록 설정합니다.
+        const baseZIndex = isCluster ? 1300 : 1200;
         const icon = isCluster
           ? createClusterMarkerIcon(group.length)
           : createNaverIndustryMarkerIcon({
@@ -87,16 +88,14 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
         const marker: MarkerInstance = new maps.Marker({
           position,
           map,
-          title: isCluster
-            ? `매장 ${group.length}곳`
-            : (group[0].name ?? "업종 마커"),
+          title: isCluster ? `매장 ${group.length}곳` : (group[0].name ?? "업종 마커"),
           icon,
           zIndex: baseZIndex,
         });
         displayed.set(key, { marker, listeners: markerListeners });
         markerListeners.push(
           maps.Event.addListener(marker, "mouseover", () => {
-            marker.setZIndex(1000);
+            marker.setZIndex(2000);
             hoverIcon ??= isCluster
               ? {
                   ...icon,
@@ -115,13 +114,11 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
             marker.setIcon(icon);
           }),
         );
-        if (!isCluster) {
-          markerListeners.push(
-            maps.Event.addListener(marker, "click", () => {
-              map.morph(position, map.getMaxZoom() - 1);
-            }),
-          );
-        }
+        markerListeners.push(
+          maps.Event.addListener(marker, "click", () => {
+            map.morph(position, isCluster ? individualZoom : map.getMaxZoom() - 1);
+          }),
+        );
       }
       for (const [key, entry] of displayed) {
         if (!activeKeys.has(key)) {

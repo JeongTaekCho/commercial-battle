@@ -43,12 +43,12 @@ export default function ExplorePage() {
           aria-busy={isFetching}
           className="relative isolate min-h-[680px] overflow-hidden bg-[#edf2f3]"
         >
-          <NaverMap latitude={coords.latitude} longitude={coords.longitude} zoom={17}>
+          <NaverMap latitude={coords.latitude} longitude={coords.longitude} zoom={18}>
             <ClusterMarkerLayer markers={markers} />
             <MyMarkerLayer />
           </NaverMap>
           <AddressSelect />
-          <div className="absolute bottom-5 left-5 right-5 z-10 rounded-card border border-white/70 bg-white/95 p-5 shadow-xl backdrop-blur md:left-8 md:right-8">
+          <div className="w-[calc(100%-105px)] absolute bottom-4 left-3 right-3 z-10 rounded-card border border-white/70 bg-white/95 p-4 shadow-xl backdrop-blur sm:bottom-5 sm:left-5 sm:right-5 sm:p-5 md:left-8 md:right-8">
             <p className="text-xs font-black text-brand">현재 지도 영역</p>
             <p className="mt-1 text-sm font-bold">
               {address} · {isFetching ? "매장 조회 중" : `매장 ${markers.length}곳`}
