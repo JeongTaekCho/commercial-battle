@@ -1,3 +1,5 @@
+import { cacheRemoteStores, enableLocalStores, requestLocalStores, usesLocalStores } from "./localStores";
+
 interface FetchApiOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
@@ -10,8 +12,15 @@ export const fetchApi = async <T = unknown>(
   options: FetchApiOptions = {},
 ): Promise<T> => {
   const { body, headers: customHeaders, signal, ...requestOptions } = options;
+  const isStoreRequest = typeof window !== "undefined" && /^\/stores(?:\/[^/?]+)?$/.test(url);
+  const method = (options.method ?? "GET").toUpperCase();
+  signal?.throwIfAborted();
+  if (isStoreRequest && (!BASE_URL || usesLocalStores())) {
+    enableLocalStores();
+    return requestLocalStores(url, method, body) as T;
+  }
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), isStoreRequest ? 3000 : TIMEOUT_MS);
 
   try {
     const isFormData = body instanceof FormData;
@@ -21,19 +30,33 @@ export const fetchApi = async <T = unknown>(
     }
 
     const requestUrl = /^https?:\/\//i.test(url) ? url : `${BASE_URL}/${url.replace(/^\/+/, "")}`;
-    const response = await fetch(requestUrl, {
-      ...requestOptions,
-      headers,
-      signal: signal ? AbortSignal.any([signal, controller.signal]) : controller.signal,
-      body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
-    });
+    let response: Response;
+    try {
+      response = await fetch(requestUrl, {
+        ...requestOptions,
+        headers,
+        signal: signal ? AbortSignal.any([signal, controller.signal]) : controller.signal,
+        body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
+      });
+    } catch (error) {
+      if (!isStoreRequest || signal?.aborted) throw error;
+      enableLocalStores();
+      return requestLocalStores(url, method, body) as T;
+    }
+
+    if (isStoreRequest && response.status >= 500) {
+      enableLocalStores();
+      return requestLocalStores(url, method, body) as T;
+    }
 
     if (!response.ok) {
       throw new Error(`API 요청에 실패했습니다. (${response.status})`);
     }
 
     const text = await response.text();
-    return (text.trim() ? JSON.parse(text) : undefined) as T;
+    const data = text.trim() ? JSON.parse(text) : undefined;
+    if (isStoreRequest) cacheRemoteStores(url, method, data);
+    return data as T;
   } finally {
     clearTimeout(timeoutId);
   }
