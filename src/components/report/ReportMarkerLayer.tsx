@@ -41,6 +41,7 @@ export default function ReportMarkerLayer({
         id: item.bizesId,
         name: [item.bizesNm, item.brchNm].filter(Boolean).join(" "),
         latitude: Number(item.lat),
+        address: item.rdnmAdr || item.lnoAdr,
         longitude: Number(item.lon),
         smallCategoryCode: item.indsSclsCd,
       }));

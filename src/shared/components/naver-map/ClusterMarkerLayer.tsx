@@ -1,29 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import ClusterStoreModal from "./ClusterStoreModal";
 import { createNaverIndustryMarkerIcon } from "@/src/shared/utils/industry-marker/industry-marker";
-import {
-  clusterMarkers,
-  createClusterMarkerIcon,
-} from "@/src/shared/utils/industry-marker/marker-clusters";
+import { createClusterMarkerIcon } from "@/src/shared/utils/industry-marker/marker-clusters";
 import { useNaverMap } from "./NaverMapContext";
 import type { MarkerInstance } from "./types";
+import { groupOverlappingMarkers } from "@/src/shared/utils/industry-marker/marker-overlaps";
 
 export type NaverMapMarker = {
   id: string;
   name?: string;
+  address?: string;
   latitude: number;
   longitude: number;
   smallCategoryCode: string;
 };
 
-/** 지도에 마커를 추가하는 레이어. 제거 시 모든 마커와 이벤트도 해제합니다. */
 export default function ClusterMarkerLayer({ markers }: { markers: readonly NaverMapMarker[] }) {
   const map = useNaverMap();
+  const [selection, setSelection] = useState<{
+    source: readonly NaverMapMarker[];
+    items: NaverMapMarker[];
+  } | null>(null);
   useEffect(() => {
     if (!map || !window.naver?.maps) return;
     const maps = window.naver.maps;
-    const individualZoom = Math.min(15, map.getMaxZoom());
     const items = markers
       .filter(
         (item) =>
@@ -35,6 +37,16 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
       .slice()
       .sort((a, b) => a.id.localeCompare(b.id));
     const displayed = new Map<string, { marker: MarkerInstance; listeners: unknown[] }>();
+    const icons = new Map(
+      items.map((item) => [
+        item.id,
+        createNaverIndustryMarkerIcon({
+          smallCategoryCode: item.smallCategoryCode,
+          name: item.name,
+          showLabel: true,
+        }),
+      ]),
+    );
     const remove = (entry: { marker: MarkerInstance; listeners: unknown[] }) => {
       entry.listeners.forEach((listener) => maps.Event.removeListener(listener));
       entry.marker.setMap(null);
@@ -44,29 +56,27 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
       displayed.clear();
     };
     let renderedZoom: number | undefined;
+    let frame: number | undefined;
     const render = () => {
       const zoom = map.getZoom();
-      // 이동만 했거나 개별 표시 구간이면 SDK가 기존 마커 위치를 갱신합니다.
-      if (
-        renderedZoom === zoom ||
-        (renderedZoom !== undefined && renderedZoom >= individualZoom && zoom >= individualZoom)
-      )
-        return;
+      if (renderedZoom === zoom) return;
       renderedZoom = zoom;
       const projection = map.getProjection();
-      // 확대할수록 묶는 범위를 줄이고, 줌 15부터 개별 마커를 표시합니다.
-      const groups = clusterMarkers(
-        items,
-        (item) =>
-          projection.fromCoordToOffset({
-            lat: item.latitude,
-            lng: item.longitude,
-          }),
-        map.getZoom() >= individualZoom ? 0 : map.getZoom() >= individualZoom - 1 ? 50 : 80,
-      );
+      const isMaxZoom = zoom >= map.getMaxZoom();
+      const project = (item: NaverMapMarker) =>
+        projection.fromCoordToOffset(new maps.LatLng(item.latitude, item.longitude));
+      const groups = isMaxZoom
+        ? groupOverlappingMarkers(items, (item) => {
+            const point = project(item);
+            const icon = icons.get(item.id)!;
+            const left = point.x - icon.anchor.x;
+            const top = point.y - icon.anchor.y;
+            return { left, top, right: left + icon.size.width, bottom: top + icon.size.height };
+          })
+        : items.map((item) => [item]);
       const activeKeys = new Set<string>();
       for (const group of groups) {
-        const key = JSON.stringify(group.map((item) => item.id));
+        const key = `${isMaxZoom}:${JSON.stringify(group.map((item) => item.id))}`;
         activeKeys.add(key);
         if (displayed.has(key)) continue;
         const markerListeners: unknown[] = [];
@@ -75,15 +85,8 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
           lat: group.reduce((sum, item) => sum + item.latitude, 0) / group.length,
           lng: group.reduce((sum, item) => sum + item.longitude, 0) / group.length,
         };
-        // 경쟁업체/클러스터가 내 매장(MY, 1100)보다 위에 표시되도록 설정합니다.
         const baseZIndex = isCluster ? 1300 : 1200;
-        const icon = isCluster
-          ? createClusterMarkerIcon(group.length)
-          : createNaverIndustryMarkerIcon({
-              smallCategoryCode: group[0].smallCategoryCode,
-              name: group[0].name,
-              showLabel: true,
-            });
+        const icon = isCluster ? createClusterMarkerIcon(group.length) : icons.get(group[0].id)!;
         let hoverIcon: typeof icon | undefined;
         const marker: MarkerInstance = new maps.Marker({
           position,
@@ -116,7 +119,7 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
         );
         markerListeners.push(
           maps.Event.addListener(marker, "click", () => {
-            map.morph(position, isCluster ? individualZoom : map.getMaxZoom() - 1);
+            setSelection({ source: markers, items: group });
           }),
         );
       }
@@ -127,13 +130,23 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
         }
       }
     };
-    render();
-    const idleListener = maps.Event.addListener(map, "idle", render);
+    const scheduleRender = () => {
+      if (frame !== undefined) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = undefined;
+        render();
+      });
+    };
+    scheduleRender();
+    const idleListener = maps.Event.addListener(map, "idle", scheduleRender);
     return () => {
       maps.Event.removeListener(idleListener);
+      if (frame !== undefined) window.cancelAnimationFrame(frame);
       clear();
     };
   }, [map, markers]);
 
-  return null;
+  return selection?.source === markers ? (
+    <ClusterStoreModal markers={selection.items} onClose={() => setSelection(null)} />
+  ) : null;
 }

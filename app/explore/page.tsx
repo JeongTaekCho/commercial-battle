@@ -27,7 +27,8 @@ export default function ExplorePage() {
     () =>
       (districtsByRadiusData?.items ?? []).map((item) => ({
         id: item.bizesId,
-        name: item.bizesNm,
+        name: [item.bizesNm, item.brchNm].filter(Boolean).join(" "),
+        address: item.rdnmAdr || item.lnoAdr,
         latitude: item.lat,
         longitude: item.lon,
         smallCategoryCode: item.indsSclsCd,
