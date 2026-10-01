@@ -101,7 +101,7 @@ commercial-battle/
 │   │   ├── stores/
 │   │   ├── report/
 │   │   └── battle/
-│   ├── api/              # 매장 생성·수정·삭제 API 함수
+│   ├── api/                     # 매장 생성·수정·삭제 API 함수
 │   ├── hooks/                   # 매장 변경 및 리포트 분석 훅
 │   ├── store/                   # Zustand 상태 (explore, stores, battle)
 │   ├── constants/               # 업종 분류, 경쟁 기준값, 마커 아이콘 등

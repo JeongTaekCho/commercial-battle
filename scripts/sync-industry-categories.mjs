@@ -14,7 +14,8 @@ if (payload?.header?.resultCode !== "00") throw new Error(`상권업종 API 오�
 const items = payload.body?.items ?? [];
 const categories = [...new Map(items.map((item) => [item.indsSclsCd, {
   indsMclsCd: String(item.indsMclsCd),
-  indsMclsNm: String(item.indsMclsNm),
+  // 서비스에서는 비알코올 중분류를 사용자에게 카페로 표시한다.
+  indsMclsNm: item.indsMclsCd === "I212" ? "카페" : String(item.indsMclsNm),
   indsSclsCd: String(item.indsSclsCd),
   indsSclsNm: String(item.indsSclsNm),
 }])).values()].sort((a, b) => a.indsSclsCd.localeCompare(b.indsSclsCd));
@@ -28,7 +29,15 @@ export const INDUSTRY_CATEGORIES = [
 ${rows}
 ] as const satisfies readonly IndustryCategory[];
 export type MiddleCategory = { code: string; name: string };
-export const getMiddleCategories = (): MiddleCategory[] => Array.from(new Map(INDUSTRY_CATEGORIES.map((item) => [item.indsMclsCd, { code: item.indsMclsCd, name: item.indsMclsNm }])).values());
+const VISIT_FOCUSED_MIDDLE_CODES = ["I201", "I202", "I203", "I204", "I205", "I212", "I211", "S207"];
+export const getMiddleCategories = (): MiddleCategory[] => {
+  const categories = Array.from(new Map(INDUSTRY_CATEGORIES.map((item) => [item.indsMclsCd, { code: item.indsMclsCd, name: item.indsMclsNm }])).values());
+  return categories.sort((a, b) => {
+    const aPriority = VISIT_FOCUSED_MIDDLE_CODES.indexOf(a.code);
+    const bPriority = VISIT_FOCUSED_MIDDLE_CODES.indexOf(b.code);
+    return (aPriority === -1 ? VISIT_FOCUSED_MIDDLE_CODES.length : aPriority) - (bPriority === -1 ? VISIT_FOCUSED_MIDDLE_CODES.length : bPriority);
+  });
+};
 export const getSmallCategories = (middleCode: string) => INDUSTRY_CATEGORIES.filter((item) => item.indsMclsCd === middleCode);
 export const getCategoryBySmallCode = (smallCode: string) => INDUSTRY_CATEGORIES.find((item) => item.indsSclsCd === smallCode);
 export const isValidCategoryPath = (middleCode: string, smallCode: string) => INDUSTRY_CATEGORIES.some((item) => item.indsMclsCd === middleCode && item.indsSclsCd === smallCode);

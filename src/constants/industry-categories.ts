@@ -433,7 +433,7 @@ export const INDUSTRY_CATEGORIES = [
   { indsMclsCd: "I211", indsMclsNm: "주점", indsSclsCd: "I21102", indsSclsNm: "무도 유흥 주점" },
   { indsMclsCd: "I211", indsMclsNm: "주점", indsSclsCd: "I21103", indsSclsNm: "생맥주 전문" },
   { indsMclsCd: "I211", indsMclsNm: "주점", indsSclsCd: "I21104", indsSclsNm: "요리 주점" },
-  { indsMclsCd: "I212", indsMclsNm: "비알코올 ", indsSclsCd: "I21201", indsSclsNm: "카페" },
+  { indsMclsCd: "I212", indsMclsNm: "카페", indsSclsCd: "I21201", indsSclsNm: "카페" },
   {
     indsMclsCd: "L102",
     indsMclsNm: "부동산 서비스",
@@ -970,8 +970,19 @@ export const INDUSTRY_CATEGORIES = [
   },
 ] as const satisfies readonly IndustryCategory[];
 export type MiddleCategory = { code: string; name: string };
-export const getMiddleCategories = (): MiddleCategory[] =>
-  Array.from(
+const VISIT_FOCUSED_MIDDLE_CODES = [
+  "I201", // 한식
+  "I202", // 중식
+  "I203", // 일식
+  "I204", // 서양식
+  "I205", // 기타 음식점
+  "I212", // 카페
+  "I211", // 주점
+  "S207", // 미용
+] as const;
+
+export const getMiddleCategories = (): MiddleCategory[] => {
+  const categories = Array.from(
     new Map(
       INDUSTRY_CATEGORIES.map((item) => [
         item.indsMclsCd,
@@ -979,6 +990,15 @@ export const getMiddleCategories = (): MiddleCategory[] =>
       ]),
     ).values(),
   );
+
+  return categories.sort((a, b) => {
+    const aIndex = VISIT_FOCUSED_MIDDLE_CODES.indexOf(a.code as (typeof VISIT_FOCUSED_MIDDLE_CODES)[number]);
+    const bIndex = VISIT_FOCUSED_MIDDLE_CODES.indexOf(b.code as (typeof VISIT_FOCUSED_MIDDLE_CODES)[number]);
+    const aPriority = aIndex === -1 ? VISIT_FOCUSED_MIDDLE_CODES.length : aIndex;
+    const bPriority = bIndex === -1 ? VISIT_FOCUSED_MIDDLE_CODES.length : bIndex;
+    return aPriority - bPriority;
+  });
+};
 export const getSmallCategories = (middleCode: string) =>
   INDUSTRY_CATEGORIES.filter((item) => item.indsMclsCd === middleCode);
 export const getCategoryBySmallCode = (smallCode: string) =>
