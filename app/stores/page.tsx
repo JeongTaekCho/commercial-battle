@@ -6,7 +6,6 @@ import StoreList from "@/src/components/stores/StoreList";
 
 export default function StoresPage() {
   const [editing, setEditing] = useState<Store | null>(null);
-  const [notice, setNotice] = useState("");
 
   return (
     <main className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14 lg:px-10">
@@ -27,14 +26,8 @@ export default function StoresPage() {
           + 새 매장 등록
         </button>
       </div>
-      <StoreList setEditing={setEditing} setNotice={setNotice} />
-      {notice && (
-        <p role="status" className="mt-5 rounded-lg bg-positive/10 p-3 text-sm text-positive">
-          {notice}
-        </p>
-      )}
-
-      {editing && <StoreModal store={editing} onClose={() => setEditing(null)} onSave={() => {}} />}
+      <StoreList setEditing={setEditing} />
+      {editing && <StoreModal store={editing} onClose={() => setEditing(null)} />}
     </main>
   );
 }

@@ -11,12 +11,10 @@ export default function StoreCard({
   store,
   onOpen,
   onEdit,
-  onDelete,
 }: {
   store: Store;
   onOpen: () => void;
   onEdit: () => void;
-  onDelete: () => void;
 }) {
   const { middle, small } = getStoreCategories(store);
   const [isDeleteConfirm, setIsDeleteConfirm] = useState(false);
@@ -37,7 +35,6 @@ export default function StoreCard({
     });
   };
 
-  console.log(store);
   return (
     <>
       <article className="group overflow-hidden rounded-card border border-border bg-white transition hover:border-brand/40 hover:shadow-lg hover:shadow-ink/5">

@@ -1,4 +1,9 @@
-import { cacheRemoteStores, enableLocalStores, requestLocalStores, usesLocalStores } from "./localStores";
+import {
+  cacheRemoteStores,
+  enableLocalStores,
+  requestLocalStores,
+  usesLocalStores,
+} from "./localStores";
 
 interface FetchApiOptions extends Omit<RequestInit, "body"> {
   body?: unknown;

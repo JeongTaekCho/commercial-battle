@@ -56,7 +56,7 @@ export default function StoreReport({ id }: { id: string }) {
       </main>
     );
   return (
-    <main className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14 lg:px-10">
+    <main className="mx-auto max-w-300 px-5 py-10 sm:py-14 lg:px-10">
       <ReportBackButton />
       <div className="mt-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>

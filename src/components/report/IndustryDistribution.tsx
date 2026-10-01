@@ -9,8 +9,6 @@ export default function IndustryDistribution({
   trafficData,
   trafficTotalCount,
 }: IndustryDistributionProps) {
-  console.log(trafficData);
-
   const categoryInfoArray = [
     { label: "음식점", count: trafficData?.food || 0, color: "bg-brand" },
     { label: "카페", count: trafficData?.cafe || 0, color: "bg-purple" },
@@ -18,8 +16,6 @@ export default function IndustryDistribution({
     { label: "주점", count: trafficData?.bar || 0, color: "bg-positive" },
     { label: "소매·생활서비스", count: trafficData?.beauty || 0, color: "bg-slate-400" },
   ];
-
-  console.log();
 
   return (
     <section className="rounded-card border border-border bg-white p-6 sm:p-7">

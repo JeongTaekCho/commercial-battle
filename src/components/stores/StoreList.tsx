@@ -9,10 +9,9 @@ import StoreCardSkeleton from "@/src/components/stores/StoreCardSkeleton";
 
 interface StoreListProps {
   setEditing: Dispatch<SetStateAction<Store | null>>;
-  setNotice: Dispatch<SetStateAction<string>>;
 }
 
-export default function StoreList({ setEditing, setNotice }: StoreListProps) {
+export default function StoreList({ setEditing }: StoreListProps) {
   const { data: stores, isLoading, isError } = useGetStoreListQuery();
   const router = useRouter();
 
@@ -36,9 +35,6 @@ export default function StoreList({ setEditing, setNotice }: StoreListProps) {
               store={store}
               onOpen={() => router.push(`/stores/${store.id}`)}
               onEdit={() => setEditing(store)}
-              onDelete={() => {
-                setNotice("매장이 삭제되었습니다.");
-              }}
             />
           ))}
       </div>
