@@ -129,8 +129,6 @@ commercial-battle/
 - **UI와 계산 로직 분리**: API 함수는 통신을, 훅은 조회 상태와 데이터 조합을, 유틸은 점수 계산을 담당합니다. 리포트와 배틀이 같은 계산 함수를 사용하므로 점수 기준을 한 곳에서 수정할 수 있습니다.
 - **서버 상태와 화면 상태 분리**: API 응답·캐시는 TanStack Query로, 위치·필터·비교 대상 같은 화면 상태는 Zustand로 관리합니다.
 
-현재 매장 변경 API는 `src/api/stores`, 공통 조회 API는 `src/shared/api`에 있습니다. `src/store/stores/useStoresStore.ts`에는 샘플 상태가 별도로 남아 있지만, 실제 매장 CRUD 데이터는 JSON Server에서 관리합니다.
-
 ## 사용하는 API
 
 | 서비스                              | API                                                       | 사용 목적                                                   |
