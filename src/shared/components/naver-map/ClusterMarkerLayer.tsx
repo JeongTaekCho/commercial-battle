@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import ClusterStoreModal from "./ClusterStoreModal";
 import { createNaverIndustryMarkerIcon } from "@/src/shared/utils/industry-marker/industry-marker";
-import { createClusterMarkerIcon } from "@/src/shared/utils/industry-marker/marker-clusters";
+import {
+  clusterMarkers,
+  createClusterMarkerIcon,
+} from "@/src/shared/utils/industry-marker/marker-clusters";
 import { useNaverMap } from "./NaverMapContext";
 import type { MarkerInstance } from "./types";
 import { groupOverlappingMarkers } from "@/src/shared/utils/industry-marker/marker-overlaps";
@@ -26,6 +29,8 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
   useEffect(() => {
     if (!map || !window.naver?.maps) return;
     const maps = window.naver.maps;
+    const minimumZoom = map.getMinZoom?.() ?? 10;
+    const modalZoom = Math.min(minimumZoom + 9, map.getMaxZoom());
     const items = markers
       .filter(
         (item) =>
@@ -73,7 +78,7 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
             const top = point.y - icon.anchor.y;
             return { left, top, right: left + icon.size.width, bottom: top + icon.size.height };
           })
-        : items.map((item) => [item]);
+        : clusterMarkers(items, project, zoom >= modalZoom - 1 ? 50 : 80);
       const activeKeys = new Set<string>();
       for (const group of groups) {
         const key = `${isMaxZoom}:${JSON.stringify(group.map((item) => item.id))}`;
@@ -119,6 +124,16 @@ export default function ClusterMarkerLayer({ markers }: { markers: readonly Nave
         );
         markerListeners.push(
           maps.Event.addListener(marker, "click", () => {
+            const currentZoom = map.getZoom();
+            const canOpenList = currentZoom >= modalZoom;
+            if (isCluster) {
+              if (canOpenList) {
+                setSelection({ source: markers, items: group });
+              } else {
+                map.morph(position, Math.min(currentZoom + 2, modalZoom));
+              }
+              return;
+            }
             setSelection({ source: markers, items: group });
           }),
         );

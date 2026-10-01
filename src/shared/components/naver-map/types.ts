@@ -4,6 +4,7 @@ export type MapInstance = {
   };
   getZoom: () => number;
   setZoom: (zoom: number) => void;
+  getMinZoom: () => number;
   getMaxZoom: () => number;
   morph: (position: { lat: number; lng: number }, zoom: number) => void;
   fitBounds: (
