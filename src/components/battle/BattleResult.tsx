@@ -249,7 +249,7 @@ export default function BattleResult() {
                 <p className="mt-3 text-sm font-bold leading-7">
                   {difference === 0
                     ? `두 매장이 ${scoreA[metric]}점으로 같아요.`
-                    : `${leadingStore.name}이 ${difference}점 더 높아요.`}
+                    : `${leadingStore.name} 매장이 ${difference}점 더 높아요.`}
                 </p>
                 <p className="mt-2 text-xs leading-6 text-muted">{description}</p>
               </div>
