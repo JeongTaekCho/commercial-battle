@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import ToastContainer from "@/src/shared/components/toast/ToastContainer";
 
 export default function RootLayoutProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -20,6 +21,7 @@ export default function RootLayoutProvider({ children }: { children: React.React
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <ToastContainer />
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );

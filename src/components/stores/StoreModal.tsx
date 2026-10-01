@@ -7,15 +7,12 @@ import type { Store } from "../../types/storeType";
 import { usePostStoreMutation } from "@/src/hooks/stores/usePostStoreMutation";
 import { usePatchStoreMutation } from "@/src/hooks/stores/usePatchStoreMutation";
 
-export default function StoreModal({
-  store,
-  onClose,
-  onSave,
-}: {
+interface StoreModalProps {
   store: Store;
   onClose: () => void;
-  onSave: (store: Store) => void;
-}) {
+}
+
+export default function StoreModal({ store, onClose }: StoreModalProps) {
   const [value, setValue] = useState(store);
   const [addressOpen, setAddressOpen] = useState(false);
 

@@ -5,6 +5,7 @@ import ConfirmModal from "@/src/shared/components/ConfirmModal";
 import { useDeleteStoreMutation } from "@/src/hooks/stores/useDeleteStoreMutation";
 import IndustryCategoryIcon from "@/src/shared/components/IndustryCategoryIcon";
 import ActionIcon from "@/src/shared/components/ActionIcon";
+import { toast } from "@/src/shared/utils/toast";
 
 export default function StoreCard({
   store,
@@ -29,7 +30,11 @@ export default function StoreCard({
   const handleDeleteStore = () => {
     if (!store.id) return;
 
-    deleteStoreMutate(store.id);
+    deleteStoreMutate(store.id, {
+      onSuccess: () => {
+        toast.success(`${store.name} 매장이 삭제되었습니다.`);
+      },
+    });
   };
 
   console.log(store);
