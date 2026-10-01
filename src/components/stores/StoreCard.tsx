@@ -37,7 +37,7 @@ export default function StoreCard({
 
   return (
     <>
-      <article className="group overflow-hidden rounded-card border border-border bg-white transition hover:border-brand/40 hover:shadow-lg hover:shadow-ink/5">
+      <article className="group overflow-hidden rounded-card border border-border bg-white shadow-[0_4px_20px_#293d3504] transition hover:border-[#ccba9f] hover:shadow-lg hover:shadow-ink/5">
         <button
           type="button"
           onClick={onOpen}
@@ -45,19 +45,19 @@ export default function StoreCard({
         >
           <div className="flex items-center justify-between">
             <IndustryCategoryIcon smallCategoryCode={store.small} className="size-12 rounded-2xl" />
-            <span className="rounded-full bg-canvas px-3 py-1.5 text-[11px] font-bold text-muted">
-              MY STORE
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f0f4eb] px-3 py-1.5 text-[11px] font-medium text-positive">
+              <span className="size-1.5 rounded-full bg-[#88a078]" /> 내 매장
             </span>
           </div>
-          <h2 className="mt-6 break-words text-xl font-black tracking-tight">{store.name}</h2>
+          <h3 className="mt-5 break-words text-xl font-bold tracking-tight">{store.name}</h3>
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
             <span className="inline-flex items-center gap-2 rounded-lg bg-canvas px-3 py-2">
               <span className="text-muted">중분류</span>
               <span className="font-bold text-ink">{middle}</span>
             </span>
-            <span className="inline-flex items-center gap-2 rounded-lg bg-brand-soft  px-3 py-2">
+            <span className="inline-flex items-center gap-2 rounded-lg bg-[#fbf1e6] px-3 py-2">
               <span className="text-muted">소분류</span>
-              <span className="font-bold text-brand">{small ?? "미선택"}</span>
+              <span className="font-bold text-[#9c6544]">{small ?? "미선택"}</span>
             </span>
           </div>
           <p className="mt-3 text-sm leading-6 text-muted">{store.address}</p>
@@ -65,13 +65,13 @@ export default function StoreCard({
             <span>상권 분석 보기</span>
             <span
               aria-hidden="true"
-              className="grid size-9 place-items-center rounded-full bg-brand-soft text-brand transition group-hover:bg-brand group-hover:text-white"
+              className="grid size-9 place-items-center rounded-full bg-[#f1f4eb] text-positive transition group-hover:bg-positive group-hover:text-white"
             >
               <ActionIcon />
             </span>
           </div>
         </button>
-        <div className="flex justify-end gap-2 border-t border-border bg-canvas/50 px-6 py-3">
+        <div className="flex justify-end gap-2 border-t border-border bg-[#fcfbf7] px-6 py-2">
           <button
             onClick={onEdit}
             aria-label="매장 수정"

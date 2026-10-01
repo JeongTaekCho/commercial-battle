@@ -10,11 +10,11 @@ export default function IndustryDistribution({
   trafficTotalCount,
 }: IndustryDistributionProps) {
   const categoryInfoArray = [
-    { label: "음식점", count: trafficData?.food || 0, color: "bg-brand" },
-    { label: "카페", count: trafficData?.cafe || 0, color: "bg-purple" },
-    { label: "편의점", count: trafficData?.convenience || 0, color: "bg-amber" },
-    { label: "주점", count: trafficData?.bar || 0, color: "bg-positive" },
-    { label: "소매·생활서비스", count: trafficData?.beauty || 0, color: "bg-slate-400" },
+    { label: "음식점", count: trafficData?.food || 0, color: "bg-blue-500" },
+    { label: "카페", count: trafficData?.cafe || 0, color: "bg-violet-500" },
+    { label: "편의점", count: trafficData?.convenience || 0, color: "bg-amber-500" },
+    { label: "주점", count: trafficData?.bar || 0, color: "bg-teal-500" },
+    { label: "미용·생활서비스", count: trafficData?.beauty || 0, color: "bg-rose-400" },
   ];
 
   return (
@@ -30,14 +30,17 @@ export default function IndustryDistribution({
         {categoryInfoArray.map((item) => (
           <div key={item.label}>
             <div className="mb-2 flex justify-between text-xs">
-              <span className="font-bold">{item.label}</span>
+              <span className="inline-flex items-center gap-2 font-bold">
+                <span aria-hidden="true" className={`size-2 rounded-full ${item.color}`} />
+                {item.label}
+              </span>
               <span className="font-bold">{item.count}</span>
             </div>
-            <div className="h-2 rounded-full bg-canvas">
+            <div className="h-2.5 overflow-hidden rounded-full bg-canvas">
               <div
                 className={`h-full rounded-full ${item.color}`}
                 style={{
-                  width: `${(item.count / Math.max(...(Object.values(trafficData || []) || 0))) * 100}%`,
+                  width: `${(item.count / Math.max(1, ...Object.values(trafficData || {}))) * 100}%`,
                 }}
               />
             </div>

@@ -39,7 +39,7 @@ export default function BattleResult() {
 
   if (!storeA || !storeB) {
     return (
-      <div className="mt-7 rounded-card border border-dashed border-brand/30 bg-brand-soft/40 p-8 text-center">
+      <div className="mt-7 rounded-card border border-dashed border-[#d7e1f3] bg-[#f5f8ff] px-6 py-10 text-center">
         <h2 className="text-base font-bold">비교할 매장 두 곳을 선택해주세요</h2>
         <p className="mt-2 text-sm leading-6 text-muted">
           선택하면 항목별 점수와 상권 비교 코멘트를 확인할 수 있어요.
@@ -89,10 +89,13 @@ export default function BattleResult() {
 
   return (
     <>
-      <section className="mt-7 overflow-hidden rounded-3xl bg-ink p-7 text-white sm:p-9">
+      <section
+        data-winner={winner ? (winner.id === storeA.id ? "A" : "B") : "draw"}
+        className="battle-winner mt-7 overflow-hidden rounded-3xl border p-7 sm:p-9"
+      >
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
           <div>
-            <p className="text-[10px] font-black tracking-[.2em] text-[#f7c76e]">
+            <p className="text-[10px] font-black tracking-[.2em] text-[var(--winner-color)]">
               {winner ? "BATTLE WINNER" : "BATTLE DRAW"}
             </p>
             <h2 className="mt-4 text-2xl font-black sm:text-3xl">
@@ -101,10 +104,11 @@ export default function BattleResult() {
               </span>
               {winner ? winner.name : "무승부"}
             </h2>
-            <p className="mt-3 text-sm leading-6 text-white/60">
+            <p className="mt-3 text-sm leading-6 text-muted">
               {winner ? (
                 <>
-                  최종 상권 점수가 <strong className="text-white">{scoreDifference}점</strong> 더
+                  최종 상권 점수가{" "}
+                  <strong className="text-[var(--winner-color)]">{scoreDifference}점</strong> 더
                   높아요.
                 </>
               ) : (
@@ -112,18 +116,18 @@ export default function BattleResult() {
               )}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-5 sm:border-l sm:border-white/15 sm:pl-9">
+          <div className="flex flex-wrap items-center gap-5 sm:border-l sm:border-[var(--winner-border)] sm:pl-9">
             <div className="flex items-baseline gap-2">
-              <strong className="text-6xl font-black tracking-tight text-[#f7c76e]">
+              <strong className="text-6xl font-black tracking-tight text-[var(--winner-color)]">
                 {winner ? winner.totalScore : storeAResult.totalScore}
               </strong>
-              <span className="text-sm text-white/50">/ 100점</span>
+              <span className="text-sm text-muted">/ 100점</span>
             </div>
             {winner && (
               <Link
                 href={`/stores/${winner?.id}`}
                 aria-label={`${winner?.name} 승리 매장 분석 리포트 보기`}
-                className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-control border border-[#f7c76e]/30 bg-[#f7c76e] px-4 py-3 text-sm font-bold text-ink shadow-sm transition hover:bg-[#ffda93] hover:shadow-md"
+                className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-control border border-[var(--winner-border)] bg-white px-4 py-3 text-sm font-bold text-ink shadow-sm transition hover:bg-[#f5f8ff] hover:shadow-md"
               >
                 <ActionIcon kind="report" />
                 승리 매장 리포트
@@ -142,11 +146,11 @@ export default function BattleResult() {
         </div>
         <div className="mt-6 flex flex-wrap gap-4 text-[14px] font-bold">
           <span className="flex items-center gap-2">
-            <i className="size-2 rounded-full bg-brand" />
+            <i className="size-2 rounded-full bg-[#e87554]" />
             {storeAResult?.name}
           </span>
           <span className="flex items-center gap-2">
-            <i className="size-2 rounded-full bg-purple" />
+            <i className="size-2 rounded-full bg-[#4e7ddd]" />
             {storeBResult.name}
           </span>
         </div>
@@ -185,7 +189,7 @@ export default function BattleResult() {
                   >
                     <div className="h-5 flex-1 overflow-hidden rounded-md bg-canvas">
                       <div
-                        className={`h-full rounded-md ${index === 0 ? "bg-brand" : "bg-purple"}`}
+                        className={`h-full rounded-md ${index === 0 ? "bg-[#e87554]" : "bg-[#4e7ddd]"}`}
                         style={{ width: `${store[metric.key]}%` }}
                       />
                     </div>
@@ -204,12 +208,12 @@ export default function BattleResult() {
             <h3 className="text-sm font-bold">주변 경쟁업체</h3>
             <p className="mt-1 text-[10px] text-muted">동일·유사 업종</p>
           </div>
-          <p className="text-center text-xl font-black text-brand">
+          <p className="text-center text-xl font-black text-[#c65338]">
             <span className="mb-1 block text-[14px] font-bold">{storeAResult.name}</span>
             {storeAResult.competitionCount}
             <span className="ml-1 text-xs font-normal">개</span>
           </p>
-          <p className="text-center text-xl font-black text-purple">
+          <p className="text-center text-xl font-black text-[#3768cd]">
             <span className="mb-1 block text-[14px] font-bold">{storeBResult.name}</span>
             {storeBResult.competitionCount}
             <span className="ml-1 text-xs font-normal">개</span>
@@ -221,7 +225,7 @@ export default function BattleResult() {
         <h2 className="mt-2 text-xl font-black">상권 비교 코멘트</h2>
         <p className="mt-3 text-sm leading-7 text-muted">
           {winner
-            ? `${winner.name}의 최종 상권 점수가 ${scoreDifference}점 더 높아요. 아래 항목별 차이도 함께 살펴보세요.`
+            ? `${winner.name}의 최종 상권 점수가 ${scoreDifference}점 더 높아요. 항목별 차이도 함께 살펴보세요.`
             : "최종 점수는 같아도 상권의 특성은 다를 수 있어요. 활성도와 경쟁 환경을 함께 살펴보세요."}
         </p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">

@@ -17,9 +17,12 @@ export default function StoreList({ setEditing }: StoreListProps) {
 
   return (
     <section className="mt-10">
-      <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-base font-black">
-          등록한 매장 <span className="text-brand">{isLoading ? "—" : stores?.length || 0}</span>개
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="flex items-center gap-3 text-lg font-bold">
+          등록한 매장{" "}
+          <span className="grid min-w-7 place-items-center rounded-lg bg-[#f4ecdf] px-2 py-1 text-xs text-[#956447]">
+            {isLoading ? "—" : stores?.length || 0}
+          </span>
         </h2>
         <span className="text-xs text-muted">매장을 선택해 분석 리포트를 확인하세요</span>
       </div>
@@ -48,7 +51,13 @@ export default function StoreList({ setEditing }: StoreListProps) {
         </div>
       )}
       {!isLoading && !isError && !stores?.length && (
-        <div className="rounded-card border border-dashed border-border bg-white px-6 py-16 text-center">
+        <div className="rounded-card border border-dashed border-[#dedacb] bg-[#fcfaf4] px-6 py-14 text-center">
+          <span
+            aria-hidden="true"
+            className="mx-auto mb-5 grid size-12 place-items-center rounded-2xl bg-[#f2e8d9] text-2xl text-[#956447]"
+          >
+            +
+          </span>
           <p className="text-lg font-bold">첫 번째 매장을 등록해 보세요</p>
           <p className="mt-3 text-sm text-muted">
             매장 이름과 업종, 주소를 설정하면 준비가 끝나요.

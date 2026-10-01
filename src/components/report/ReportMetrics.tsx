@@ -13,8 +13,9 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
           label: "상권 활성도",
           value: report.activityScore || 0,
           detail: `주변 방문형 업종 ${totalCount}개`,
-          color: "bg-brand",
-          number: "text-brand",
+          color: "bg-blue-500",
+          surface: "border-blue-200 bg-blue-50/60",
+          number: "text-blue-700",
           icon: "activity",
         },
         {
@@ -24,25 +25,30 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
             report.competitionCount === undefined
               ? "경쟁 업체 정보 확인 필요"
               : `150m 내 동일 소분류 ${report.competitionCount}개 · 높을수록 경쟁 적음`,
-          color: "bg-positive",
-          number: "text-positive",
+          color: "bg-teal-500",
+          surface: "border-teal-200 bg-teal-50/60",
+          number: "text-teal-700",
           icon: "competition",
         },
         {
-          label: "주변 전체 상가",
+          label: "방문형 업종 수",
           value: totalCount,
           detail: "선택 반경 150m 기준",
-          color: "bg-purple",
-          number: "text-purple",
+          color: "bg-violet-500",
+          surface: "border-violet-200 bg-violet-50/60",
+          number: "text-violet-700",
           icon: "stores",
         },
       ].map((item, index) => (
-        <section key={item.label} className="rounded-card border border-border bg-white p-6">
+        <section
+          key={item.label}
+          className={`rounded-card border border-t-[3px] p-6 ${item.surface}`}
+        >
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-muted">{item.label}</h2>
+            <h2 className={`text-sm font-bold ${item.number}`}>{item.label}</h2>
             <span
               aria-hidden="true"
-              className={`grid size-8 place-items-center rounded-lg bg-canvas text-lg ${item.number}`}
+              className={`grid size-8 place-items-center rounded-lg bg-white text-lg ${item.number}`}
             >
               {item.icon === "activity" && (
                 <svg
@@ -96,12 +102,14 @@ export default function ReportMetrics({ report, totalCount }: ReportMetricsProps
             </span>
           </div>
           <p className="mt-5 flex items-baseline gap-2">
-            <strong className="text-3xl font-black">{item.value ?? "—"}</strong>
+            <strong className={`text-4xl font-black tabular-nums ${item.number}`}>
+              {item.value ?? "—"}
+            </strong>
             <span className="text-sm text-muted">{index === 2 ? "개" : "/ 100"}</span>
           </p>
           <p className="mt-3 text-xs text-muted">{item.detail}</p>
           {index !== 2 && item.value !== undefined && (
-            <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-canvas">
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
               <div
                 className={`h-full rounded-full ${item.color}`}
                 style={{ width: `${item.value}%` }}

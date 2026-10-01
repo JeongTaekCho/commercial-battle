@@ -174,7 +174,101 @@ button {
   outline: 3px solid #f7b731;
   outline-offset: 3px;
 }
-.modal-backdrop { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 1rem; background: rgb(23 36 59 / 45%); }
+
+/* Warm, locally scoped surfaces for the store and comparison workspaces. */
+.workspace-page {
+  --color-canvas: #f7f7f2;
+  --color-border: #e7e7de;
+  --color-muted: #6c746e;
+  --color-ink: #293d35;
+  --color-positive: #4f755e;
+  min-height: calc(100dvh - 72px);
+  background: #fffefa;
+  color: var(--color-ink);
+}
+.workspace-intro {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: 294px;
+  overflow: hidden;
+  border: 1px solid #f0e6d9;
+  border-radius: 24px;
+  background: #fbf3e8;
+  padding: 36px 40px;
+}
+.workspace-intro-battle {
+  border-color: #dde5f4;
+  background: linear-gradient(115deg, #f2f6ff 0%, #f5f7ff 60%, #fff2ed 100%);
+}
+.battle-page {
+  --color-ink: #243451;
+  --color-muted: #63718a;
+  --color-border: #e1e7f1;
+  --color-canvas: #f4f7fc;
+  background: #fcfdff;
+}
+.report-page {
+  --color-brand: #4f55c9;
+  --color-brand-soft: #eeefff;
+  --color-positive: #0d887e;
+  --color-purple: #8a55c7;
+  --color-ink: #26334f;
+  --color-muted: #65718a;
+  --color-border: #e0e5f2;
+  --color-canvas: #f4f6fc;
+  min-height: calc(100dvh - 72px);
+  background: #fcfcff;
+  color: var(--color-ink);
+}
+.report-summary {
+  background: linear-gradient(115deg, #f0f1ff, #f8f9ff 70%);
+  border: 1px solid #d9ddfa;
+  border-top: 4px solid #6469d8;
+}
+.workspace-illustration {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  width: 40%;
+  max-width: 440px;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .workspace-intro {
+    padding: 30px;
+  }
+  .workspace-illustration {
+    right: -40px;
+    width: 36%;
+    opacity: 0.65;
+  }
+}
+@media (max-width: 639px) {
+  .workspace-intro {
+    display: block;
+    min-height: auto;
+    padding: 28px 24px 0;
+  }
+  .workspace-illustration {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 240px;
+    margin: -4px auto 0;
+    opacity: 1;
+  }
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(23 36 59 / 45%);
+}
 .modal-backdrop button.bg-brand {
   flex-shrink: 0;
   min-width: 64px;
@@ -188,4 +282,21 @@ button {
     padding: 10px 12px;
     font-size: 12px;
   }
+}
+
+.battle-winner {
+  --winner-color: #3768cd;
+  --winner-border: #cbdaf4;
+  border-color: var(--winner-border);
+  background: #eef3ff;
+}
+.battle-winner[data-winner="A"] {
+  --winner-color: #c65338;
+  --winner-border: #f2cfc4;
+  background: #fff1eb;
+}
+.battle-winner[data-winner="draw"] {
+  --winner-color: #59647b;
+  --winner-border: #dfe4ee;
+  background: #f5f7fb;
 }
