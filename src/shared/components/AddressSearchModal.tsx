@@ -30,7 +30,7 @@ export default function AddressSearchModal({
         aria-modal="true"
         aria-labelledby="address-title"
         onMouseDown={(event) => event.stopPropagation()}
-        className="flex max-h-[min(90vh,720px)] w-[min(92vw,620px)] flex-col rounded-card bg-white p-5 shadow-2xl sm:p-6"
+        className="flex max-h-[min(75vh,720px)] w-[min(92vw,620px)] flex-col rounded-card bg-white p-5 shadow-2xl sm:p-6"
       >
         <div className="flex shrink-0 items-center justify-between">
           <h2 id="address-title" className="text-xl font-black">
@@ -94,18 +94,20 @@ export default function AddressSearchModal({
                 <strong className="block text-base">
                   {road?.address_name ?? item.address_name}
                 </strong>
-                <div className="mt-2 space-y-1 pr-36 text-xs leading-5 text-muted">
-                  <p>지번 {item.address_name}</p>
-                  {road?.zone_no && <p>우편번호 {road.zone_no}</p>}
+                <div className="flex items-center mt-2 justify-between flex-col items-start gap-1 sm:flex-row sm:items-center">
+                  <div className="space-y-1  text-xs leading-5 text-muted">
+                    <p>지번 {item.address_name}</p>
+                    {road?.zone_no && <p>우편번호 {road.zone_no}</p>}
+                  </div>
+                  {buildingName && (
+                    <span
+                      className="truncate rounded-full bg-ink px-2 py-1 text-xs font-bold text-white"
+                      title={buildingName}
+                    >
+                      {buildingName}
+                    </span>
+                  )}
                 </div>
-                {buildingName && (
-                  <span
-                    className="absolute bottom-4 right-4 max-w-32 truncate rounded-full bg-ink px-2 py-1 text-xs font-bold text-white"
-                    title={buildingName}
-                  >
-                    {buildingName}
-                  </span>
-                )}
               </button>
             );
           })}
