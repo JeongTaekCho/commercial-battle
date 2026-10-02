@@ -153,9 +153,9 @@ commercial-battle/
 
 ## 상태 관리
 
-- 위치 및 반경은 `useLocationStore`, <br/>
-  업종 필터는 `useTypeFilterStore`, <br/>
-  상권 배틀에 피요한 두 매장은 `useBattleStore`에서 관리합니다.
+- 위치 및 반경 상태 `useLocationStore`, <br/>
+  업종 필터 상태 `useTypeFilterStore`, <br/>
+  상권 배틀에 필요한 두 매장 상태를 `useBattleStore`에서 관리합니다.
 - 상권 공공 데이터 및 매장 데이터는 TanStack Query로 관리합니다.
 
 ## 사용하는 API
