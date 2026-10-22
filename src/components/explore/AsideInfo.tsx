@@ -3,17 +3,14 @@
 import IndustryFields from "@/src/shared/components/selection/IndustryFields";
 import { useLocationStore } from "@/src/store/explore/useLocationStore";
 import { useTypeFilterStore } from "@/src/store/explore/useTypeFilterStore";
-import { useGetCommercialDistrictsByRadiusQuery } from "@/src/shared/hooks/useGetCommercialDistrictsByRadiusQuery";
+import { useExploreDistrictsQuery } from "@/src/shared/hooks/useExploreDistrictsQuery";
+import { useExploreAreaStore } from "@/src/store/explore/useExploreAreaStore";
 
 export default function AsideInfo() {
-  const { address, coords, radius } = useLocationStore();
+  const { address } = useLocationStore();
+  const { mode, complete } = useExploreAreaStore();
   const { middleType, setMiddleType, smallType, setSmallType } = useTypeFilterStore();
-  const { data, isFetching } = useGetCommercialDistrictsByRadiusQuery(
-    radius,
-    coords,
-    middleType,
-    smallType,
-  );
+  const { data, isFetching } = useExploreDistrictsQuery();
 
   return (
     <aside className="border-r border-border bg-white p-8 lg:p-10">
@@ -29,12 +26,16 @@ export default function AsideInfo() {
       <section className="mt-9 rounded-card bg-ink p-6 text-white">
         <p className="text-xs text-white/60">선택한 상권</p>
         <p className="mt-2 text-[16px] font-black">
-          {isFetching ? "주소를 불러오는 중..." : address}
+          {mode === "polygon" ? (complete ? "직접 그린 영역" : "영역을 그리는 중") : address}
         </p>
         <div className="mt-4 border-t border-white/15 pt-4 text-sm">
           <span className="text-white/60">조회된 상권</span>
           <strong className="float-right text-xl">
-            {isFetching ? "-" : `${data?.totalCount ?? 0}곳`}
+            {mode === "polygon" && !complete
+              ? "-"
+              : isFetching
+                ? "-"
+                : `${data?.totalCount ?? 0}곳`}
           </strong>
         </div>
         {data && data?.items?.length >= 1000 && (

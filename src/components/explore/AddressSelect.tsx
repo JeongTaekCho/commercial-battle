@@ -4,9 +4,11 @@ import AddressSearchModal, { AddressResult } from "@/src/shared/components/Addre
 import { useLocationStore } from "@/src/store/explore/useLocationStore";
 import { useEffect, useRef, useState } from "react";
 import MyStoreSelectModal from "@/src/components/explore/MyStoreSelectModal";
+import { useExploreAreaStore } from "@/src/store/explore/useExploreAreaStore";
 
 export default function AddressSelect() {
   const { address, setAddress, setCoords, radius, setRadius } = useLocationStore();
+  const { mode, points, complete, setMode, undoPoint, finish, clear } = useExploreAreaStore();
 
   const [addressOpen, setAddressOpen] = useState(false);
   const [myStoresOpen, setMyStoresOpen] = useState(false);
@@ -75,24 +77,90 @@ export default function AddressSelect() {
         <div className="flex flex-wrap items-center gap-2">
           <div
             role="group"
-            aria-label="상권 탐색 반경"
-            className="flex max-w-full flex-wrap items-center gap-1 rounded-control border border-border bg-white p-1 shadow-sm"
+            aria-label="탐색 영역 방식"
+            className="flex items-center gap-1 rounded-control border border-border bg-white p-1 shadow-sm"
           >
-            <span className="px-2 text-xs font-bold text-muted">반경</span>
-            {[150, 300, 500, 1000].map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={radius === value}
-                onClick={() => setRadius(value)}
-                className={`rounded-lg px-3 py-2 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
-                  radius === value ? "bg-brand text-white" : "text-ink hover:bg-canvas"
-                }`}
-              >
-                {value === 1000 ? "1km" : `${value}m`}
-              </button>
-            ))}
+            <button
+              type="button"
+              aria-pressed={mode === "radius"}
+              onClick={() => setMode("radius")}
+              className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "radius" ? "bg-brand text-white" : "text-ink hover:bg-canvas"}`}
+            >
+              반경
+            </button>
+            <button
+              type="button"
+              aria-pressed={mode === "polygon"}
+              onClick={() => setMode("polygon")}
+              className={`rounded-lg px-3 py-2 text-sm font-bold ${mode === "polygon" ? "bg-brand text-white" : "text-ink hover:bg-canvas"}`}
+            >
+              직접 그리기
+            </button>
           </div>
+          {mode === "radius" && (
+            <div
+              role="group"
+              aria-label="상권 탐색 반경"
+              className="flex max-w-full flex-wrap items-center gap-1 rounded-control border border-border bg-white p-1 shadow-sm"
+            >
+              <span className="px-2 text-xs font-bold text-muted">반경</span>
+              {[150, 300, 500, 1000].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={radius === value}
+                  onClick={() => {
+                    setRadius(value);
+                    setMode("radius");
+                  }}
+                  className={`rounded-lg px-3 py-2 text-sm font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
+                    radius === value ? "bg-brand text-white" : "text-ink hover:bg-canvas"
+                  }`}
+                >
+                  {value === 1000 ? "1km" : `${value}m`}
+                </button>
+              ))}
+            </div>
+          )}
+          {mode === "polygon" && (
+            <div className="flex items-center gap-1 rounded-control border border-border bg-white p-1 text-sm font-bold shadow-sm">
+              <span className="px-2 text-xs text-muted">
+                {complete
+                  ? "꼭짓점을 끌어 수정"
+                  : points.length >= 3
+                    ? "첫 점을 눌러 완성"
+                    : `${points.length}개 점 선택`}
+              </span>
+              {!complete && (
+                <button
+                  type="button"
+                  disabled={points.length === 0}
+                  onClick={undoPoint}
+                  className="rounded-lg px-2 py-2 disabled:opacity-40"
+                >
+                  되돌리기
+                </button>
+              )}
+              {!complete && (
+                <button
+                  type="button"
+                  disabled={points.length < 3}
+                  onClick={finish}
+                  className="rounded-lg bg-brand px-3 py-2 text-white disabled:opacity-40"
+                >
+                  영역 완성
+                </button>
+              )}
+              <button
+                type="button"
+                disabled={points.length === 0}
+                onClick={clear}
+                className="rounded-lg px-2 py-2 text-red-600 disabled:opacity-40"
+              >
+                초기화
+              </button>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setMyStoresOpen(true)}
